@@ -1,0 +1,146 @@
+﻿@model CVProof.Web.Models.VerifyViewModel;
+
+<h2 style="margin-top:20px">Verify data</h2>
+<br />
+
+<div class="container-fluid">
+    <div class="row" style="display: flex;">
+    <div class="col col-md-4" id="verifyFileArea">
+        <form id="verifyFileForm" asp-controller="Contract" asp-action="VerifyFile" method="post" enctype="multipart/form-data">
+            <h3 style="margin:20px 0px 20px 0px">Upload file</h3>
+            
+            <input type="file" name="Files" />
+            <br />
+            @*<button type="submit" name="SubmitFile" value="SubmitFile">Upload File</button>*@
+            <input type="button" id="verifyFileBtn" value="Verify File" class="btn btn-default" data-autoupdateform="#verifyFileForm" data-cvproof-url="@Url.Action("VerifyFile", "Contract")" />
+        </form>
+    </div>
+
+    <div class="col col-md-4" id="verifyTextArea">
+        @using (Html.BeginForm("VerifyText", "Contract", FormMethod.Post, new { id = "verifyTextForm" }))
+        {
+            <h3 style="margin:20px 0px 20px 0px">Paste plain text</h3>
+            @Html.TextAreaFor(e => e.Text, new { @class = "form-control", @cols = 80, @rows = 10 })
+            <br />
+            @*<button type="submit" name="SubmitText" value="SubmitText">Upload Text</button>*@
+            <input type="button" id="verifyTextBtn" value="Verify Text" class="btn btn-default" data-autoupdateform="#verifyTextForm" data-cvproof-url="@Url.Action("VerifyText", "Contract")" />
+        }
+    </div>
+
+    <div class="col col-md-4">
+        @if (Model.Header != null)
+        {
+            <h3 style="margin:20px 0px 20px 0px">Result header</h3>
+            <div class="row">
+                <div style="display:inline" class="col-md-6">
+                    @Html.LabelFor(e => e.Header.ContainerVersion)
+                </div>
+                <div style="display:inline" class="col-md-6">
+                    @Html.DisplayFor(e => e.Header.ContainerVersion, new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="row">
+                <div style="display:inline" class="col-md-6">
+                    @Html.LabelFor(e => e.Header.DataHash)
+                </div>
+            </div>
+            <div class="row">
+                <div class="class=" col-md-12"">
+                    @Html.DisplayFor(e => e.Header.DataHash, new { @class = "form-control" })
+                </div>
+            </div>
+            @*@Html.LabelFor(e => e.Header.HeaderId, new { @class = "form-control" })
+                @Html.DisplayFor(e => e.Header.HeaderId, new { @class = "form-control" })
+                @Html.DisplayFor(e => e.Header.Category, new { @class = "form-control" })
+                @Html.DisplayFor(e => e.Header.ValidatorName, new { @class = "form-control" })
+                @Html.DisplayFor(e => e.Header.RecipientName, new { @class = "form-control" })
+                @Html.DisplayFor(e => e.Header.ValidatorUuid, new { @class = "form-control" })
+                @Html.DisplayFor(e => e.Header.RecipientUuid, new { @class = "form-control" })
+                @Html.DisplayFor(e => e.Header.PreviousHeaderId, new { @class = "form-control" })
+                @Html.DisplayFor(e => e.Header.RecipientUuid, new { @class = "form-control" })
+                @Html.DisplayFor(e => e.Header.NextHeaderId, new { @class = "form-control" })
+                @Html.DisplayFor(e => e.Header.RecipientUuid, new { @class = "form-control" })
+                @Html.DisplayFor(e => e.Header.Timestamp, new { @class = "form-control" })
+                @Html.DisplayFor(e => e.Header.RecipientUuid, new { @class = "form-control" })
+                @Html.DisplayFor(e => e.Header.BlockNumber, new { @class = "form-control" })
+                @Html.DisplayFor(e => e.Header.DataAddress, new { @class = "form-control" })
+                @Html.DisplayFor(e => e.Header.ValidationExpiry, new { @class = "form-control" })
+                @Html.DisplayFor(e => e.Header.DataHash, new { @class = "form-control" })
+                @Html.DisplayFor(e => e.Header.Nonce, new { @class = "form-control" })*@
+        }
+    </div>
+    </div>
+</div>
+@section Scripts {
+    <script type="text/javascript">
+
+        var updateTextStatus = function (btn, data) {
+            var textarea = $('#verifyTextArea');            
+            if (data) { textarea.addClass('make-green'); } else { textarea.addClass('make-red'); }
+        };
+        
+        var updateFileStatus = function (btn, data) {
+            var filearea = $('#verifyFileArea');
+            if (data) { filearea.addClass('make-green'); } else { filearea.addClass('make-red'); }
+        };
+
+        var ajaxTextUpdate = function (e) {
+            var textarea = $('#verifyTextArea');
+            textarea.removeClass('make-red');
+            textarea.removeClass('make-green');
+
+            e.preventDefault();
+            var $input = $(this);
+
+            var formId = $input.attr('data-autoupdateform');
+            var $form = $(formId);
+
+            $form.on('submit', null, { callback: updateTextStatus, input: $input }, ajaxFormSubmit);
+            $form.trigger('submit');
+            $form.off('submit', null, ajaxFormSubmit);
+        };
+
+        var ajaxFileUpdate = function (e) {
+            var filearea = $('#verifyFileArea');
+            filearea.removeClass('make-red');
+            filearea.removeClass('make-green');
+
+            e.preventDefault();
+            var $input = $(this);
+
+            var formId = $input.attr('data-autoupdateform');
+            var $form = $(formId);
+
+            $form.on('submit', null, { callback: updateFileStatus, input: $input }, ajaxFormSubmit);
+            $form.trigger('submit');
+            $form.off('submit', null, ajaxFormSubmit);
+        };
+        
+        $('#verifyFileBtn').click(ajaxFileUpdate);
+        $('#verifyTextBtn').click(ajaxTextUpdate);
+
+        function SendImage() {
+            var fileUpload = $("#files").get(0);
+            var files = fileUpload.files;
+            var data = new FormData();
+            for (var i = 0; i < files.length; i++) {
+                data.append(files[i].name, files[i]);
+            }
+            $.ajax({
+                type: "POST",
+                url: "/Contract/Verify/",
+                contentType: false,
+                processData: false,
+                data: data,
+                success: function (data) {
+                    if (data.length > 0) {
+                        console.log(data);
+                    }
+                },
+                error: function () {
+                    alert("There was error uploading files!");
+                }
+            });
+        }
+</script>
+}

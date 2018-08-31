@@ -1,0 +1,55 @@
+﻿@model IEnumerable<CVProof.Models.HeaderModel>
+@{
+    ViewBag.Title = "Rates";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="col-md-4"><h2 style="float:left;margin-top:20px">Documents</h2></div>
+
+<div id="filters" class="input-group pull-right" style="width:200px;margin-top:20px">    
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th class="viewcol">Id</th>
+            <th class="viewcol">Category</th>
+            <th class="viewcol">Validator</th>
+            <th class="viewcol">Timestamp</th>
+            <th class="viewcol">Block No</th>
+            <th class="editcol">Address</th>
+            <th class="editcol">Data hash</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+                    foreach (var item in Model)
+                    {
+        <tr>
+            <td>@Html.DisplayFor(i => item.HeaderId)</td>
+            <td>@Html.DisplayFor(i => item.Category)</td>
+
+            <td class="viewcol">
+                @Html.DisplayFor(i => item.ValidatorUuid)<br />
+            </td>
+            <td class="viewcol">
+                @Html.DisplayFor(i => item.Timestamp)<br />
+            </td>
+            <td class="viewcol">
+                @Html.DisplayFor(i => item.BlockNumber)<br />
+            </td>
+            <td class="viewcol">
+                @Html.DisplayFor(i => item.DataAddress)<br />
+            </td>
+            <td class="viewcol">
+                @Html.DisplayFor(i => item.DataHash)<br />
+            </td>
+
+        </tr>
+                    }
+        }
+    </tbody>
+</table>
+
+

@@ -1,0 +1,106 @@
+﻿@model CVProof.Web.Models.ValidateViewModel;
+
+<h2 style="margin-top:20px">Validate data</h2>
+<br />
+
+<div class="container-fluid">
+    <div class="col-md-4">
+        <form id="validateFileForm" asp-controller="Contract" asp-action="ValidateFile" method="post" enctype="multipart/form-data">
+
+            <h3 style="margin:20px 0px 20px 0px">Upload file</h3>
+            <input type="file" name="Files" multiple />
+            <br />
+            <input type="button" id="validateFileBtn" value="Upload File" class="btn btn-default" data-autoupdateform="#validateFileForm" data-cvproof-url="@Url.Action("ValidateFile", "Contract")" />
+        </form>
+    </div>
+
+    <div class="col-md-4">
+        @using (Html.BeginForm("ValidateText", "Contract", FormMethod.Post, new { id = "validateTextForm" }))
+        {
+
+            <h3 style="margin:20px 0px 20px 0px">Paste plain text</h3>
+            @Html.TextAreaFor(e => e.Text, new { @class = "form-control", @cols = 80, @rows = 10 })
+            <br />
+            <input type="button" id="validateTextBtn" value="Upload Text" class="btn btn-default" data-autoupdateform="#validateTextForm" data-cvproof-url="@Url.Action("ValidateText", "Contract")" />
+        }
+    </div>
+
+
+    <div class="col-md-4">
+        @if (Model.Header != null)
+        {
+            <h3 style="margin:20px 0px 20px 0px">Result header</h3>
+            <div class="row">
+                <div style="display:inline" class="col-md-6">
+                    @Html.LabelFor(e => e.Header.ContainerVersion)
+                </div>
+                <div style="display:inline" class="col-md-6">
+                    @Html.DisplayFor(e => e.Header.ContainerVersion, new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="row">
+                <div style="display:inline" class="col-md-6">
+                    @Html.LabelFor(e => e.Header.DataHash)
+                </div>
+            </div>
+            <div class="row">
+                <div class="class=" col-md-12"">
+                    @Html.DisplayFor(e => e.Header.DataHash, new { @class = "form-control" })
+                </div>
+            </div>
+            @*@Html.LabelFor(e => e.Header.HeaderId, new { @class = "form-control" })
+                @Html.DisplayFor(e => e.Header.HeaderId, new { @class = "form-control" })
+                @Html.DisplayFor(e => e.Header.Category, new { @class = "form-control" })
+                @Html.DisplayFor(e => e.Header.ValidatorName, new { @class = "form-control" })
+                @Html.DisplayFor(e => e.Header.RecipientName, new { @class = "form-control" })
+                @Html.DisplayFor(e => e.Header.ValidatorUuid, new { @class = "form-control" })
+                @Html.DisplayFor(e => e.Header.RecipientUuid, new { @class = "form-control" })
+                @Html.DisplayFor(e => e.Header.PreviousHeaderId, new { @class = "form-control" })
+                @Html.DisplayFor(e => e.Header.RecipientUuid, new { @class = "form-control" })
+                @Html.DisplayFor(e => e.Header.NextHeaderId, new { @class = "form-control" })
+                @Html.DisplayFor(e => e.Header.RecipientUuid, new { @class = "form-control" })
+                @Html.DisplayFor(e => e.Header.Timestamp, new { @class = "form-control" })
+                @Html.DisplayFor(e => e.Header.RecipientUuid, new { @class = "form-control" })
+                @Html.DisplayFor(e => e.Header.BlockNumber, new { @class = "form-control" })
+                @Html.DisplayFor(e => e.Header.DataAddress, new { @class = "form-control" })
+                @Html.DisplayFor(e => e.Header.ValidationExpiry, new { @class = "form-control" })
+                @Html.DisplayFor(e => e.Header.DataHash, new { @class = "form-control" })
+                @Html.DisplayFor(e => e.Header.Nonce, new { @class = "form-control" })*@
+        }
+    </div>
+
+</div>
+@section Scripts {
+    <script type="text/javascript">
+        var updateForm = function (btn, data) {            
+            btn.closest('form').get(0).reset();
+            btn.stopPropagation();
+            btn.preventDefault();
+        };
+
+        var ajaxTextUpdate = function (e) {
+            e.preventDefault();
+            var $input = $(this);
+            var formId = $input.attr('data-autoupdateform');
+            var $form = $(formId);
+
+            $form.on('submit', null, { callback: updateForm, input: $input }, ajaxFormSubmit);
+            $form.trigger('submit');
+            $form.off('submit', null, ajaxFormSubmit);
+        };
+
+        var ajaxFileUpdate = function (e) {
+            e.preventDefault();
+            var $input = $(this);
+            var formId = $input.attr('data-autoupdateform');
+            var $form = $(formId);
+
+            $form.on('submit', null, { callback: updateForm, input: $input }, ajaxFormSubmit);
+            $form.trigger('submit');
+            $form.off('submit', null, ajaxFormSubmit);
+        };
+
+        $('#validateFileBtn').click(ajaxFileUpdate);
+        $('#validateTextBtn').click(ajaxTextUpdate);
+    </script>
+}

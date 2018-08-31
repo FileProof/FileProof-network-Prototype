@@ -1,0 +1,18 @@
+﻿  @model System.String
+    <h2 style="margin-top:20px">Mainnet test</h2>
+    <br/>
+    
+    <div class="container-fluid">
+        <h2>Ethereum Foundation Balance: @ViewBag.EthereumFoundationBalance</h2>
+
+        @using (Html.BeginForm("RunTest", "Contract", FormMethod.Post, new { id = "verifyTextForm" }))
+        {
+            <div>
+                <input type="Text" id="hash" value="Test Ropsten" class="form-control" name="hash" />
+            </div>
+
+            <div>
+                <input type="submit" id="TestRopsten" value="Test Ropsten" class="btn btn-default"/>
+            </div>
+        }
+    </div>
