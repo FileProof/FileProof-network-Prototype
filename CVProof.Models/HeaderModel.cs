@@ -16,9 +16,11 @@ namespace CVProof.Models
 
         public string ContainerVersion { get { return "0.1.0"; } }
         public string HeaderId { get; set; }
-        public string Category { get; set; }
+        public string Category { get; set; }        
         public string ValidatorName { get; set; }
+        public string IssuerName { get; set; }
         public string RecipientName { get; set; }
+        public string IssuerUuid { get; set; }
         public string ValidatorUuid { get; set; }
         public string RecipientUuid { get; set; }
         public string PreviousHeaderId { get; set; }
@@ -27,6 +29,7 @@ namespace CVProof.Models
         public string BlockNumber { get; set; }
         public string DataAddress { get; set; }
         public string ValidationExpiry { get; set; }
+        public string ValidationCounter { get; set; }
         public string DataHash { get; set; }
         public string Nonce { get; set; }
     }

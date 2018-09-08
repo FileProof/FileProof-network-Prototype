@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CVProof.Models\CVProof.Models.csproj" />
+    <ProjectReference Include="..\CVProof.Utils\CVProof.Utils.csproj" />
   </ItemGroup>
 
 </Project>

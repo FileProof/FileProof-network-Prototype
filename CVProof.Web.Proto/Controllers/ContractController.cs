@@ -12,8 +12,9 @@ using Microsoft.Extensions.Configuration;
 using System.IO;
 using CVProof.Utils;
 using CVProof.DAL.SQL;
-using Newtonsoft.Json;
+using CVProof.DAL.ETH;
 using CVProof.Models;
+
 
 namespace CVProof.Web.Controllers
 {    
@@ -31,36 +32,31 @@ namespace CVProof.Web.Controllers
         {
             ValidateViewModel model = new ValidateViewModel();
 
-            //object header;
-
-            //if (TempData.TryGetValue("header", out header) != null)
-            //{ 
-            //    model.Header = header == null ? null: JsonConvert.DeserializeObject<HeaderModel>((string) header);
-            //}
-
             return View(model);
         }
 
         [HttpPost]
         public async Task<IActionResult> ValidateText(ValidateViewModel model)
         {
-            byte[] datahash;
-
-            HeaderModel header = new HeaderModel();
+            HeaderModel header = new HeaderModel();            
+            header.Init();
+            header.ValidatorName = "User";
+            header.Category = Category.Text.ToString();
 
             if (!String.IsNullOrEmpty(model.Text))
             {
                 using (System.Security.Cryptography.HashAlgorithm sha256 = System.Security.Cryptography.SHA256.Create())
                 {
-                    datahash = sha256.ComputeHash(System.Text.Encoding.UTF8.GetBytes(model.Text));
-                }
+                    //ret.DataHash = Encoding.UTF8.GetString(hashBytes);                    
+                    header.DataHash = Utils.Convert.ToHexString(sha256.ComputeHash(System.Text.Encoding.UTF8.GetBytes(model.Text)));
+                }              
 
-                header.DataHash = System.Convert.ToBase64String(datahash);
+                Ethereum eth = new Ethereum();
+
+                header = await eth.SendToNetwork(header);
 
                 SQLData.SetHeader(header);
             }
-
-            TempData["header"] = JsonConvert.SerializeObject(header);
 
             return RedirectToAction("Validate");
         }
@@ -68,37 +64,31 @@ namespace CVProof.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> ValidateFile(ValidateViewModel model)
         {
-            byte[] datahash;
-
-            HeaderModel header = new HeaderModel();
+            HeaderModel header = new HeaderModel();            
+            header.ValidatorName = "User";
+            header.Category = Category.File.ToString();
 
             try
             {
                 foreach (var file in model.Files)
                 {
-                    datahash = null;
+                    header.Init();                    
 
                     if (file != null && file.Length > 0)
-                    {
-                        byte[] bytes = new byte[(int)file.Length];                            
-
+                    {                
                         using (var stream = file.OpenReadStream())
                         {
-                            file.CopyToAsync(stream);
-
-                            //await stream.ReadAsync(bytes);
-                            //string base64string = System.Convert.ToBase64String(bytes);
-
                             using (System.Security.Cryptography.HashAlgorithm sha256 = System.Security.Cryptography.SHA256.Create())
                             {
-                                datahash = sha256.ComputeHash(stream);
+                                header.DataHash = Utils.Convert.ToHexString(sha256.ComputeHash(stream));
                             }
                         }
 
-                        header.DataHash = System.Convert.ToBase64String(datahash);
+                        Ethereum eth = new Ethereum();                        
+
+                        header = await eth.SendToNetwork(header);
 
                         SQLData.SetHeader(header);
-
                     }
                 }
             }
@@ -113,19 +103,12 @@ namespace CVProof.Web.Controllers
                 return Content("error reading file");
             }
 
-            TempData["header"] = JsonConvert.SerializeObject(header);
+            //TempData["header"] = JsonConvert.SerializeObject(header);
 
             return RedirectToAction("Validate");
 
         }
 
-
-        //public IActionResult Verify()
-        //{
-        //    VerifyViewModel model = new VerifyViewModel();
-
-        //    return View(model);
-        //}
 
         public async Task<IActionResult> Verify(VerifyViewModel model = null)
         {
@@ -137,23 +120,20 @@ namespace CVProof.Web.Controllers
         {
             byte[] datahash;
 
-            HeaderModel header = new HeaderModel();
-
-            //if (model.SubmitText != null)
-            //{
-                if (!String.IsNullOrEmpty(model.Text))
+            HeaderModel header = new HeaderModel();     
+            
+            if (!String.IsNullOrEmpty(model.Text))
+            {
+                using (System.Security.Cryptography.HashAlgorithm sha256 = System.Security.Cryptography.SHA256.Create())
                 {
-                    using (System.Security.Cryptography.HashAlgorithm sha256 = System.Security.Cryptography.SHA256.Create())
-                    {
-                        datahash = sha256.ComputeHash(System.Text.Encoding.UTF8.GetBytes(model.Text));
-                    }
-                    
-                    header.DataHash = System.Convert.ToBase64String(datahash);
-
-                    model.Status = header.Equals(SQLData.GetHeaderByData(header.DataHash)) ? VerificationStatus.True : VerificationStatus.False;
-                    // Temp function use, after implementing smart contract interface needs to be changed to GetById
+                    datahash = sha256.ComputeHash(System.Text.Encoding.UTF8.GetBytes(model.Text));
                 }
-            //}
+
+                var datahashString = Utils.Convert.ToHexString(datahash);//System.Text.Encoding.UTF8.GetString(datahash);
+
+                model.Status = SQLData.GetHeaderByData(datahashString) != null ? VerificationStatus.True : VerificationStatus.False;               
+            }
+
 
             return model.Status == VerificationStatus.True;
         }
@@ -162,7 +142,6 @@ namespace CVProof.Web.Controllers
         {
             byte[] datahash;
 
-            HeaderModel header = new HeaderModel();
             try
             {
                 foreach (var file in model.Files)
@@ -171,22 +150,17 @@ namespace CVProof.Web.Controllers
 
                     if (file != null && file.Length > 0)
                     {
-                        byte[] bytes = new byte[(int)file.Length];
-
                         using (var stream = file.OpenReadStream())
-                        {
-                            file.CopyToAsync(stream);
-
+                        {                       
                             using (System.Security.Cryptography.HashAlgorithm sha256 = System.Security.Cryptography.SHA256.Create())
                             {
                                 datahash = sha256.ComputeHash(stream);
                             }
                         }
 
-                        header.DataHash = System.Convert.ToBase64String(datahash);
-
-                        model.Status = header.Equals(SQLData.GetHeaderByData(header.DataHash)) ? VerificationStatus.True : VerificationStatus.False;
-
+                        var datahashString = Utils.Convert.ToHexString(datahash);
+                       
+                        model.Status = SQLData.GetHeaderByData(datahashString) != null ? VerificationStatus.True : VerificationStatus.False;
                     }
                 }
             }
@@ -204,22 +178,9 @@ namespace CVProof.Web.Controllers
             return model.Status == VerificationStatus.True;
         }        
 
-        public async Task<IActionResult> Mainnet()
-        {
-            ViewBag.EthereumFoundationBalance = await Web3Util.GetEthereumFoundationBalance();
-            return View();
-        }
-
-        public async Task<bool> RunTest(string hash)
-        {           
-            return await Web3Util.TestHashStore(hash);
-        }
-
         public IActionResult ShowDocs()
         {
-            List<HeaderModel> model = SQLData.GetHeaders();
-
-            return View(model);
+            return View(new HeaderListViewModel(SQLData.GetHeaders()));
         }
 
         [AllowAnonymous]

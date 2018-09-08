@@ -1,6 +1,6 @@
-﻿@model IEnumerable<CVProof.Models.HeaderModel>
+﻿@model CVProof.Web.Models.HeaderListViewModel
 @{
-    ViewBag.Title = "Rates";
+    ViewBag.Title = "Documents";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -24,23 +24,24 @@
     </thead>
     <tbody>
         @{
-                    foreach (var item in Model)
+                    foreach (var item in Model.HeaderList)
                     {
         <tr>
             <td>@Html.DisplayFor(i => item.HeaderId)</td>
             <td>@Html.DisplayFor(i => item.Category)</td>
 
             <td class="viewcol">
-                @Html.DisplayFor(i => item.ValidatorUuid)<br />
+                @Html.DisplayFor(i => item.ValidatorName)<br />
             </td>
             <td class="viewcol">
                 @Html.DisplayFor(i => item.Timestamp)<br />
             </td>
             <td class="viewcol">
-                @Html.DisplayFor(i => item.BlockNumber)<br />
+                <a href="https://ropsten.etherscan.io/block/@item.BlockNumber">@item.BlockNumber</a><br />
             </td>
             <td class="viewcol">
-                @Html.DisplayFor(i => item.DataAddress)<br />
+                @*Html.DisplayFor(i => @Html.item.DataAddress)*@
+                <a href="https://ropsten.etherscan.io/tx/@item.DataAddress">@item.DataAddress.Substring(0,7)...</a><br />
             </td>
             <td class="viewcol">
                 @Html.DisplayFor(i => item.DataHash)<br />

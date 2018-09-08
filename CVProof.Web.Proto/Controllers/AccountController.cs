@@ -15,7 +15,7 @@ namespace CVProof.Web.Controllers
         [HttpGet]
         public IActionResult SignIn()
         {
-            var redirectUrl = Url.Action(nameof(ContractController.Mainnet), "Home");
+            var redirectUrl = Url.Action(nameof(ContractController.Validate), "Contract");
             return Challenge(
                 new AuthenticationProperties { RedirectUri = redirectUrl },
                 OpenIdConnectDefaults.AuthenticationScheme);
@@ -37,7 +37,7 @@ namespace CVProof.Web.Controllers
             if (User.Identity.IsAuthenticated)
             {
                 // Redirect to home page if the user is authenticated.
-                return RedirectToAction(nameof(ContractController.Mainnet), "Home");
+                return RedirectToAction(nameof(ContractController.Validate), "Contract");
             }
 
             return View();

@@ -46,7 +46,23 @@ namespace CVProof.DAL.SQL
                     {
                         ret.Add(new HeaderModel()
                         {
-                            DataHash = reader.GetString(15)
+                            HeaderId = reader.GetString(0),
+                            Category = reader.GetString(1),
+                            IssuerName = reader.GetString(2),
+                            ValidatorName = reader.GetString(3),
+                            IssuerUuid = reader.GetString(4),
+                            ValidatorUuid = reader.GetString(5),
+                            RecipientName = reader.GetString(6),
+                            RecipientUuid = reader.GetString(7),
+                            PreviousHeaderId = reader.GetString(8),
+                            ValidationCounter = reader.GetString(9),
+                            NextHeaderId = reader.GetString(10),
+                            Timestamp = reader.GetString(11),
+                            BlockNumber = reader.GetString(12),
+                            DataAddress = reader.GetString(13),
+                            ValidationExpiry = reader.GetString(14),
+                            DataHash = reader.GetString(15),
+                            Nonce = reader.GetString(16)
                         });
                     }
                 }
@@ -181,23 +197,23 @@ namespace CVProof.DAL.SQL
                                 "[DataHash]," +
                                 "[Nonce]" +
                                 " ) values (" +
-                                "''," +
-                                "''," +
-                                "''," +
-                                "''," +
-                                "''," +
-                                "''," +
-                                "''," +
-                                "''," +
-                                "''," +
-                                "''," +
-                                "''," +
-                                "''," +
-                                "''," +
-                                "''," +
-                                "''," +
+                                "'" + header.HeaderId + "'," +
+                                "'" + header.Category + "'," +
+                                "'" + header.IssuerName + "'," + 
+                                "'" + header.ValidatorName + "'," +
+                                "'" + header.IssuerUuid+ "'," +
+                                "'" + header.ValidatorUuid + "'," +
+                                "'" + header.RecipientName + "'," +
+                                "'" + header.RecipientUuid + "'," +
+                                "'" + header.PreviousHeaderId + "'," +
+                                "'" + header.ValidationCounter + "'," +
+                                "'" + header.NextHeaderId + "'," +
+                                "'" + header.Timestamp + "'," +
+                                "'" + header.BlockNumber + "'," +
+                                "'" + header.DataAddress + "'," +
+                                "'" + header.ValidationExpiry + "'," +
                                 "'" + header.DataHash + "'," +
-                                "''" +
+                                "'" + header.Nonce + "'" +
                                 ")";
                     cmd.ExecuteNonQuery();
                 }                

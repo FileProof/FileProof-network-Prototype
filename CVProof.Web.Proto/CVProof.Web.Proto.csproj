@@ -29,15 +29,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\CVProof.DAL.ETH\CVProof.DAL.ETH.csproj" />
     <ProjectReference Include="..\CVProof.DAL.SQL\CVProof.DAL.SQL.csproj" />
     <ProjectReference Include="..\CVProof.Models\CVProof.Models.csproj" />
-    <ProjectReference Include="..\CVProofUtils\CVProof.Utils.csproj" />
+    <ProjectReference Include="..\CVProof.Utils\CVProof.Utils.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Update="Views\Contract\Mainnet.cshtml">
-      <Pack>$(IncludeRazorContentInPack)</Pack>
-    </Content>
     <Content Update="Views\Contract\ShowDocs.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
@@ -45,9 +43,6 @@
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
     <Content Update="Views\Contract\Validate.cshtml">
-      <Pack>$(IncludeRazorContentInPack)</Pack>
-    </Content>
-    <Content Update="Views\Home\Rates.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
     <Content Update="wwwroot\css\site.css">
