@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CVProof.Models;
+using CVProof.Utils;
 
 
 namespace CVProof.Web.Models
@@ -17,6 +18,8 @@ namespace CVProof.Web.Models
         }
 
         public IEnumerable<HeaderViewModel> HeaderList { get; set; }
+
+        public HeaderListFilters filters { get; set; }
     }
 
     public class HeaderViewModel
@@ -25,8 +28,7 @@ namespace CVProof.Web.Models
 
         public HeaderViewModel(HeaderModel header)
         {
-            this.ContainerVersion = header.ContainerVersion;
-            //this.HeaderId = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(header.HeaderId));
+            this.ContainerVersion = header.ContainerVersion;            
             this.HeaderId = header.HeaderId;
             this.Category = header.Category;
             this.ValidatorName = header.ValidatorName;
@@ -38,7 +40,9 @@ namespace CVProof.Web.Models
             this.PreviousHeaderId = header.PreviousHeaderId;
             this.NextHeaderId = header.NextHeaderId;
 
-            this.Timestamp = new DateTime(1970, 1, 1, 0, 0, 0, 0).AddSeconds(Int32.Parse(header.Timestamp));
+            int ts = 0;
+
+            this.Timestamp = String.IsNullOrEmpty(header.Timestamp) ? (DateTime?) null: new DateTime(1970, 1, 1, 0, 0, 0, 0).AddSeconds(Int32.TryParse(header.Timestamp, out ts) ? ts : 0);
             this.BlockNumber = header.BlockNumber;
             this.DataAddress = header.DataAddress;
             this.ValidationExpiry = header.ValidationExpiry;
@@ -49,8 +53,10 @@ namespace CVProof.Web.Models
 
         public string ContainerVersion { get; set; }
         public string HeaderId { get; set; }
+        public string HeaderIdShortened { get { return String.Format("{0}", HeaderId.SubStringTo(7)); } }
         public string Category { get; set; }
         public string ValidatorName { get; set; }
+        public string ValidatorNameShortened { get { return String.Format("{0}", ValidatorName.SubStringTo(7)); } }
         public string IssuerName { get; set; }
         public string RecipientName { get; set; }
         public string IssuerUuid { get; set; }
@@ -58,13 +64,22 @@ namespace CVProof.Web.Models
         public string RecipientUuid { get; set; }
         public string PreviousHeaderId { get; set; }
         public string NextHeaderId { get; set; }
-        public DateTime Timestamp { get; set; }
+        public DateTime? Timestamp { get; set; }
         public string BlockNumber { get; set; }
         public string DataAddress { get; set; }
+        public string DataAddressShortened { get { return String.Format("{0}", DataAddress.SubStringTo(7)); } }
         public string ValidationExpiry { get; set; }
         public string ValidationCounter { get; set; }
         public string DataHash { get; set; }
+        public string DataHashShortened { get { return String.Format("{0}", DataHash.SubStringTo(7)); } }
         public string Nonce { get; set; }
+    }
+
+    public class HeaderListFilters
+    {
+        public string Id { get; set; }
+
+        public string ValidatorId { get; set; }
     }
 }
 

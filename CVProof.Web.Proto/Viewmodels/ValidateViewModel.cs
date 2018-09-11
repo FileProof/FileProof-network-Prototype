@@ -14,6 +14,8 @@ namespace CVProof.Web.Models
         public List<IFormFile> Files { get; set; }
         public string Text { get; set; }
 
+        public string Validator { get; set; }
+
         public string SubmitFile { get; set; }
 
         public string SubmitText { get; set; }

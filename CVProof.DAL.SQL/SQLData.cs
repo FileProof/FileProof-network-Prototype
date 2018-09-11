@@ -109,7 +109,23 @@ namespace CVProof.DAL.SQL
                     {
                         ret = new HeaderModel()
                         {
-                            DataHash = reader.GetString(15)
+                            HeaderId = reader.GetString(0),
+                            Category = reader.GetString(1),
+                            IssuerName = reader.GetString(2),
+                            ValidatorName = reader.GetString(3),
+                            IssuerUuid = reader.GetString(4),
+                            ValidatorUuid = reader.GetString(5),
+                            RecipientName = reader.GetString(6),
+                            RecipientUuid = reader.GetString(7),
+                            PreviousHeaderId = reader.GetString(8),
+                            ValidationCounter = reader.GetString(9),
+                            NextHeaderId = reader.GetString(10),
+                            Timestamp = reader.GetString(11),
+                            BlockNumber = reader.GetString(12),
+                            DataAddress = reader.GetString(13),
+                            ValidationExpiry = reader.GetString(14),
+                            DataHash = reader.GetString(15),
+                            Nonce = reader.GetString(16)
                         };
                     }
                 }
@@ -156,13 +172,23 @@ namespace CVProof.DAL.SQL
                     {
                         ret = new HeaderModel()
                         {
-                            HeaderId= reader.GetString(0),
+                            HeaderId = reader.GetString(0),
                             Category = reader.GetString(1),
+                            IssuerName = reader.GetString(2),
+                            ValidatorName = reader.GetString(3),
+                            IssuerUuid = reader.GetString(4),
                             ValidatorUuid = reader.GetString(5),
+                            RecipientName = reader.GetString(6),
+                            RecipientUuid = reader.GetString(7),
+                            PreviousHeaderId = reader.GetString(8),
+                            ValidationCounter = reader.GetString(9),
+                            NextHeaderId = reader.GetString(10),
                             Timestamp = reader.GetString(11),
                             BlockNumber = reader.GetString(12),
                             DataAddress = reader.GetString(13),
-                            DataHash = reader.GetString(15)
+                            ValidationExpiry = reader.GetString(14),
+                            DataHash = reader.GetString(15),
+                            Nonce = reader.GetString(16)
                         };
                     }
                 }
@@ -170,7 +196,7 @@ namespace CVProof.DAL.SQL
             return ret;
         }
 
-        public static void SetHeader(HeaderModel header)
+        public static void InsertHeader(HeaderModel header)
         {
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
@@ -199,9 +225,9 @@ namespace CVProof.DAL.SQL
                                 " ) values (" +
                                 "'" + header.HeaderId + "'," +
                                 "'" + header.Category + "'," +
-                                "'" + header.IssuerName + "'," + 
+                                "'" + header.IssuerName + "'," +
                                 "'" + header.ValidatorName + "'," +
-                                "'" + header.IssuerUuid+ "'," +
+                                "'" + header.IssuerUuid + "'," +
                                 "'" + header.ValidatorUuid + "'," +
                                 "'" + header.RecipientName + "'," +
                                 "'" + header.RecipientUuid + "'," +
@@ -216,8 +242,79 @@ namespace CVProof.DAL.SQL
                                 "'" + header.Nonce + "'" +
                                 ")";
                     cmd.ExecuteNonQuery();
-                }                
+                }
             }
         }
+
+        public static void UpdateHeader(HeaderModel header)
+        {
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = "update [dbo].[Header] set " +
+                                "[Category] = @category," +
+                                "[IssuerName] = @issuername," +
+                                "[ValidatorName] = @validatorname," +
+                                "[IssuerUUID] = @issuerid," +
+                                "[ValidatorLegitimationHeaderID] = @validatorid," +
+                                "[RecipientName] = @recipientname," +
+                                "[RecipientUUID] = @recipientid," +
+                                "[PreviousHeaderID] = @previd," +
+                                "[ValidationCounter] = @validationcounter," +
+                                "[NextHeaderID] = @nextid," +
+                                "[Timestamp] = @timestamp," +
+                                "[BlockNumber] = @blocknumber," +
+                                "[DataAddress] = @dataaddress," +
+                                "[ValidationExpiry] = @validationexpiry," +
+                                "[DataHash] = @datahash," +
+                                "[Nonce] = @nonce " +
+                                "Where Id = @id";                  
+                    cmd.Parameters.AddWithValue("@category", header.Category);
+                    cmd.Parameters.AddWithValue("@issuername", header.IssuerName);
+                    cmd.Parameters.AddWithValue("@validatorname", header.ValidatorName);
+                    cmd.Parameters.AddWithValue("@issuerid", header.IssuerUuid);
+                    cmd.Parameters.AddWithValue("@validatorid", header.ValidatorUuid);
+                    cmd.Parameters.AddWithValue("@recipientname", header.RecipientName);
+                    cmd.Parameters.AddWithValue("@recipientid", header.RecipientUuid);
+                    cmd.Parameters.AddWithValue("@previd", header.PreviousHeaderId);
+                    cmd.Parameters.AddWithValue("@validationcounter", header.ValidationCounter);
+                    cmd.Parameters.AddWithValue("@nextid", header.NextHeaderId);
+                    cmd.Parameters.AddWithValue("@timestamp", header.Timestamp);
+                    cmd.Parameters.AddWithValue("@blocknumber", header.BlockNumber);
+                    cmd.Parameters.AddWithValue("@dataaddress", header.DataAddress);
+                    cmd.Parameters.AddWithValue("@validationexpiry", header.ValidationExpiry);
+                    cmd.Parameters.AddWithValue("@datahash", header.DataHash);
+                    cmd.Parameters.AddWithValue("@nonce", header.Nonce);
+                    cmd.Parameters.AddWithValue("@id", header.HeaderId);
+                    try
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+                    catch (Exception e)
+                    {
+                        Console.Write(e.Message);
+                    }
+
+                }
+            }
+        }
+
+        public static void DeleteAll()
+        {
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = "delete from [dbo].[Header] where [Category] <> 'root'";
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
     }
 }

@@ -1,4 +1,35 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Http;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Configuration;
+
+using System.ComponentModel.DataAnnotations;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using System.Linq;
+using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
+
+using Microsoft.IdentityModel.Tokens;
+using CVProof.DAL.SQL;
+using CVProof.Models;
+
+
+using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics;
@@ -17,65 +48,60 @@ using CVProof.Models;
 
 
 namespace CVProof.Web.Controllers
-{    
-    public class ContractController : Controller
+{   
+    public class ContractController : BaseController
     {
-        private readonly IConfiguration configuration;
-
-        public ContractController(IConfiguration config)
-        {
-            configuration = config;
-            SQLData.connectionString = Microsoft.Extensions.Configuration.ConfigurationExtensions.GetConnectionString(configuration, "DefaultConnection");
-        }
+        public ContractController(IConfiguration configuration, IUserMgr user) : base(configuration, user){}
 
         public IActionResult Validate()
         {
             ValidateViewModel model = new ValidateViewModel();
 
+            if (_user.IsAuthenticated) { ViewBag.User = _user.User; }
+            ViewData["Title"] = "Validate";
+
             return View(model);
         }
-
+        
         [HttpPost]
-        public async Task<IActionResult> ValidateText(ValidateViewModel model)
+        public async Task SaveText(ValidateViewModel model)
         {
             HeaderModel header = new HeaderModel();            
             header.Init();
-            header.ValidatorName = "User";
+            header.ValidatorUuid = model.Validator;
+            header.ValidatorName = model.Validator;
             header.Category = Category.Text.ToString();
 
             if (!String.IsNullOrEmpty(model.Text))
             {
                 using (System.Security.Cryptography.HashAlgorithm sha256 = System.Security.Cryptography.SHA256.Create())
-                {
-                    //ret.DataHash = Encoding.UTF8.GetString(hashBytes);                    
+                {                  
                     header.DataHash = Utils.Convert.ToHexString(sha256.ComputeHash(System.Text.Encoding.UTF8.GetBytes(model.Text)));
-                }              
+                }
 
-                Ethereum eth = new Ethereum();
+                header.HeaderId = Utils.Convert.ToHexString(header.GetHashBytes());
 
-                header = await eth.SendToNetwork(header);
-
-                SQLData.SetHeader(header);
-            }
-
-            return RedirectToAction("Validate");
+                SQLData.InsertHeader(header);
+            }            
         }
 
+
         [HttpPost]
-        public async Task<IActionResult> ValidateFile(ValidateViewModel model)
+        public async Task SaveFile(ValidateViewModel model)
         {
-            HeaderModel header = new HeaderModel();            
-            header.ValidatorName = "User";
+            HeaderModel header = new HeaderModel();
+            header.ValidatorUuid = model.Validator;
+            header.ValidatorName = model.Validator;
             header.Category = Category.File.ToString();
 
             try
             {
                 foreach (var file in model.Files)
                 {
-                    header.Init();                    
+                    header.Init();
 
                     if (file != null && file.Length > 0)
-                    {                
+                    {
                         using (var stream = file.OpenReadStream())
                         {
                             using (System.Security.Cryptography.HashAlgorithm sha256 = System.Security.Cryptography.SHA256.Create())
@@ -84,34 +110,49 @@ namespace CVProof.Web.Controllers
                             }
                         }
 
-                        Ethereum eth = new Ethereum();                        
+                        header.HeaderId = Utils.Convert.ToHexString(header.GetHashBytes());
 
-                        header = await eth.SendToNetwork(header);
-
-                        SQLData.SetHeader(header);
+                        SQLData.InsertHeader(header);
                     }
                 }
             }
 
-            catch (FileNotFoundException e)
+            catch (Exception e)
             {
-                return Content("file not selected");
+
             }
-
-            catch (IOException e)
-            {
-                return Content("error reading file");
-            }
-
-            //TempData["header"] = JsonConvert.SerializeObject(header);
-
-            return RedirectToAction("Validate");
-
         }
 
+        [Authorize]
+        [HttpPost]
+        public async Task<HeaderViewModel> Validate([FromBody] HashDto dto)
+        {
+            HeaderModel header = SQLData.GetHeaderById(dto.hash);
+
+            header.ValidatorUuid = _user.User;
+            header.ValidatorName = _user.User;
+            header.ValidationCounter = "1";
+
+            Ethereum eth = new Ethereum();
+
+            header = await eth.SendToNetwork(header);
+
+            SQLData.UpdateHeader(header);
+
+            return new HeaderViewModel(header);            
+        }
+
+        [HttpPost]
+        public void DeleteAll()
+        {
+            SQLData.DeleteAll();
+        }
 
         public async Task<IActionResult> Verify(VerifyViewModel model = null)
         {
+            if (_user.IsAuthenticated) { ViewBag.User = _user.User; }
+            ViewData["Title"] = "Verify";
+
             return View(model ?? new VerifyViewModel());
         }
 
@@ -137,6 +178,8 @@ namespace CVProof.Web.Controllers
 
             return model.Status == VerificationStatus.True;
         }
+
+
         [HttpPost]
         public async Task<bool> VerifyFile(VerifyViewModel model)
         {
@@ -176,11 +219,24 @@ namespace CVProof.Web.Controllers
             }
 
             return model.Status == VerificationStatus.True;
-        }        
+        }
 
-        public IActionResult ShowDocs()
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public IActionResult ShowDocs(HeaderListFilters filters = null)
         {
-            return View(new HeaderListViewModel(SQLData.GetHeaders()));
+            if (_user.IsAuthenticated) { ViewBag.User = _user.User; }
+            ViewData["Title"] = "Documents";
+
+            IEnumerable<HeaderModel> hdrList = SQLData.GetHeaders();
+
+            if (filters != null)
+            {
+                if (!string.IsNullOrEmpty(filters.Id)) { hdrList = hdrList.Where(e => String.Compare(e.HeaderId, filters.Id) == 0); }
+                if (!string.IsNullOrEmpty(filters.ValidatorId)) { hdrList = hdrList.Where(e => String.Compare(e.ValidatorUuid, filters.ValidatorId) == 0); }
+            }
+
+            return View(new HeaderListViewModel(hdrList));
         }
 
         [AllowAnonymous]

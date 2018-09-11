@@ -4,53 +4,101 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-
 <div class="col-md-4"><h2 style="float:left;margin-top:20px">Documents</h2></div>
 
-<div id="filters" class="input-group pull-right" style="width:200px;margin-top:20px">    
-</div>
-
-<table class="table table-striped">
+<table class="table table-condensed">
     <thead>
         <tr>
-            <th class="viewcol">Id</th>
-            <th class="viewcol">Category</th>
-            <th class="viewcol">Validator</th>
-            <th class="viewcol">Timestamp</th>
-            <th class="viewcol">Block No</th>
-            <th class="editcol">Address</th>
-            <th class="editcol">Data hash</th>
+            <th>Id</th>
+            <th>Category</th>
+            <th>Validator</th>
+            <th>Timestamp</th>
+            <th>Block No</th>
+            <th>Address</th>
+            <th>Data hash</th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
-        @{
-                    foreach (var item in Model.HeaderList)
-                    {
         <tr>
-            <td>@Html.DisplayFor(i => item.HeaderId)</td>
-            <td>@Html.DisplayFor(i => item.Category)</td>
-
-            <td class="viewcol">
-                @Html.DisplayFor(i => item.ValidatorName)<br />
-            </td>
-            <td class="viewcol">
-                @Html.DisplayFor(i => item.Timestamp)<br />
-            </td>
-            <td class="viewcol">
-                <a href="https://ropsten.etherscan.io/block/@item.BlockNumber">@item.BlockNumber</a><br />
-            </td>
-            <td class="viewcol">
-                @*Html.DisplayFor(i => @Html.item.DataAddress)*@
-                <a href="https://ropsten.etherscan.io/tx/@item.DataAddress">@item.DataAddress.Substring(0,7)...</a><br />
-            </td>
-            <td class="viewcol">
-                @Html.DisplayFor(i => item.DataHash)<br />
-            </td>
-
+            @using (Html.BeginForm(FormMethod.Get))
+            {
+                <td><input type="text" name="Id" id="IdFilter" style="width:170px" /></td>
+                <td></td>
+                <td><input type="text" name="ValidatorId" id="ValidatorIdFilter" style="width:170px" /></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td><input type="submit" value="Filter" class="btn btn-default" /></td>
+            }
         </tr>
+        @{
+            foreach (var item in Model.HeaderList)
+            {
+                <tr id="row_@item.HeaderId">
+                    <td id="id_@item.HeaderId"><a href="@item.HeaderId" class="clip" onclick="return false;">[copy] @item.HeaderIdShortened</a><br /></td>
+                    <td id="cat_@item.HeaderId">@Html.DisplayFor(i => item.Category)</td>
+                    <td id="val_@item.HeaderId"><a href="@item.ValidatorName" class="clip" onclick="return false;">[copy] @item.ValidatorNameShortened</a></td>
+                    <td id="time_@item.HeaderId">@Html.DisplayFor(i => item.Timestamp)</td>
+                    <td id="block_@item.HeaderId">
+                        <a href="https://ropsten.etherscan.io/block/@item.BlockNumber">@item.BlockNumber</a><br />
+                    </td>
+                    <td id="link_@item.HeaderId">
+                        <a href="https://ropsten.etherscan.io/tx/@item.DataAddress">@item.DataAddressShortened</a><br />
+                    </td>
+                    <td id="hash_@item.HeaderId"><a href="@item.DataHash" class="clip" onclick="return false;">[copy] @item.DataHashShortened</a></td>
+                    @if (item.ValidationCounter == "1")
+                    {                        
+                        <td><a href="#" class="btn btn-sm" style="box-shadow:none;"><i class="glyphicon glyphicon-certificate"></i></a></td>
                     }
+                    else
+                    {
+                        <td id="cert_@item.HeaderId"><a href="#" class="btn btn-success btn-sm" onclick="validate('@item.HeaderId')"><i class="glyphicon glyphicon-certificate"></i></a></td>
+                    }
+
+                </tr>
+            }
         }
     </tbody>
 </table>
+
+
+@section Scripts{
+    <script src="//cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.4.0/clipboard.min.js"></script>
+    
+    <script type="text/javascript">
+        new Clipboard('.clip', {
+            text: function (trigger) {
+                return trigger.getAttribute('href');
+            }
+        });
+    </script>
+    
+
+    <script type="text/javascript">
+        var validate = function (hash) {
+            var data = JSON.stringify({ hash: hash });
+            $.ajax({
+                type: "POST",
+                url: "/Contract/Validate/",
+                contentType: "application/json",
+                dataType: "json",
+                processData: false,
+                data: data,
+                success: function (data) {
+                    $('#val_' + data.headerId).html('<a href="' + data.validatorName + '">' + data.validatorNameShortened + '</a>');
+                    $('#cert_' + data.headerId).html('<a href="#" class="btn btn-sm" style="box-shadow:none;"><i class="glyphicon glyphicon-certificate"></i></a>');
+                    $('#time_' + data.headerId).html(data.timestamp);
+                    $('#block_' + data.headerId).html('<a href="https://ropsten.etherscan.io/block/' + data.blockNumber + '">' + data.blockNumber + '</a><br />');
+                    $('#link_' + data.headerId).html('<a href="https://ropsten.etherscan.io/tx/' + data.dataAddress + '">' + data.dataAddressShortened + '</a><br />');
+                },
+                error: function () {
+                    alert("signing in error");
+                }
+            });
+        };
+    </script>
+}
 
 

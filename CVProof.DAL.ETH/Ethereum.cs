@@ -1,20 +1,11 @@
 ﻿using Nethereum.Web3;
 using System.Numerics;
-using Nethereum.Hex.HexConvertors.Extensions;
 using Nethereum.Util;
 using System.Threading.Tasks;
 using System.Threading;
-using System.Collections.Generic;
-using System.Collections;
-using System.Linq;
 using CVProof.Models;
 using Nethereum.RPC.Eth.DTOs;
-using Nethereum.Hex.HexTypes;
-
-
-
-
-using System.Text;
+using CVProof.Utils;
 
 
 namespace CVProof.DAL.ETH
@@ -66,7 +57,7 @@ namespace CVProof.DAL.ETH
 
                 var saveHash = contract.GetFunction("saveHeaderHash");              
 
-                var data = saveHash.GetData(header.GetHashBytes());                
+                var data = saveHash.GetData(Convert.ToBytes(header.HeaderId.Substring(2)));
 
                 var txCount = await _web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(_senderAddress);
 

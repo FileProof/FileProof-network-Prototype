@@ -3,27 +3,29 @@
 <h2 style="margin-top:20px">Verify data</h2>
 <br />
 
-<div class="container-fluid">
-    <div class="row" style="display: flex;">
+<div class="container-fluid" style="display: flex">    
     <div class="col col-md-4" id="verifyFileArea">
         <form id="verifyFileForm" asp-controller="Contract" asp-action="VerifyFile" method="post" enctype="multipart/form-data">
-            <h3 style="margin:20px 0px 20px 0px">Upload file</h3>
-            
-            <input type="file" name="Files" />
-            <br />
-            @*<button type="submit" name="SubmitFile" value="SubmitFile">Upload File</button>*@
-            <input type="button" id="verifyFileBtn" value="Verify File" class="btn btn-default" data-autoupdateform="#verifyFileForm" data-cvproof-url="@Url.Action("VerifyFile", "Contract")" />
+            <fieldset>
+                <legend>Verify file</legend>
+                <div class="input-group col-md-12">
+                    <label class="btn btn-default btn-file col-md-4">
+                        Browse <input type="file" name="Files" multiple style="display:none;" data-autoupdateform="#verifyFileForm" id="Files" />
+                    </label>
+                </div>                
+            </fieldset>
         </form>
     </div>
 
     <div class="col col-md-4" id="verifyTextArea">
         @using (Html.BeginForm("VerifyText", "Contract", FormMethod.Post, new { id = "verifyTextForm" }))
         {
-            <h3 style="margin:20px 0px 20px 0px">Paste plain text</h3>
-            @Html.TextAreaFor(e => e.Text, new { @class = "form-control", @cols = 80, @rows = 10 })
-            <br />
-            @*<button type="submit" name="SubmitText" value="SubmitText">Upload Text</button>*@
-            <input type="button" id="verifyTextBtn" value="Verify Text" class="btn btn-default" data-autoupdateform="#verifyTextForm" data-cvproof-url="@Url.Action("VerifyText", "Contract")" />
+            <fieldset>
+                <legend>Paste plain text</legend>
+                @Html.TextAreaFor(e => e.Text, new { @class = "form-control", @cols = 80, @rows = 10 })
+                <br />
+                <input type="button" id="verifyTextBtn" value="Verify Text" class="btn btn-default" data-autoupdateform="#verifyTextForm" data-cvproof-url="@Url.Action("VerifyText", "Contract")" />
+            </fieldset>                                  
         }
     </div>
 
@@ -116,31 +118,7 @@
             $form.off('submit', null, ajaxFormSubmit);
         };
         
-        $('#verifyFileBtn').click(ajaxFileUpdate);
+        $('#Files').change(ajaxFileUpdate);
         $('#verifyTextBtn').click(ajaxTextUpdate);
-
-        function SendImage() {
-            var fileUpload = $("#files").get(0);
-            var files = fileUpload.files;
-            var data = new FormData();
-            for (var i = 0; i < files.length; i++) {
-                data.append(files[i].name, files[i]);
-            }
-            $.ajax({
-                type: "POST",
-                url: "/Contract/Verify/",
-                contentType: false,
-                processData: false,
-                data: data,
-                success: function (data) {
-                    if (data.length > 0) {
-                        console.log(data);
-                    }
-                },
-                error: function () {
-                    alert("There was error uploading files!");
-                }
-            });
-        }
 </script>
 }

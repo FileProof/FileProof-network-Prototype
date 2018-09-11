@@ -33,4 +33,10 @@ namespace CVProof.Models
         public string DataHash { get; set; }
         public string Nonce { get; set; }
     }
+
+    public class HashDto
+    {
+        public string hash { get; set; }
+    }
 }
+

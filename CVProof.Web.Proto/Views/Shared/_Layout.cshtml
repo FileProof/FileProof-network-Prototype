@@ -27,14 +27,14 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a asp-area="" asp-controller="Home" asp-action="Index" class="navbar-brand">CVProof.Web</a>
+                <a href="http://cvproof.azurewebsites.net" class="navbar-brand">CVProof.Web</a>
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
-                    @*<li><a asp-area="" asp-controller="Contract" asp-action="Mainnet">Mainnet</a></li>*@
                     <li><a asp-area="" asp-controller="Contract" asp-action="Validate">Validate</a></li>
                     <li><a asp-area="" asp-controller="Contract" asp-action="Verify">Verify</a></li>
-                    <li><a asp-area="" asp-controller="Contract" asp-action="ShowDocs">Documents</a></li>
+                    <li id="docs"><a asp-area="" asp-controller="Contract" asp-action="ShowDocs">Documents</a></li>
+                    <li><a href="#" onclick="restart()">Restart</a></li>
                 </ul>
                 @await Html.PartialAsync("_LoginPartial")
             </div>
@@ -68,6 +68,10 @@
         <script src="~/js/site.min.js" asp-append-version="true"></script>
     </environment>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script type="text/javascript">
+        $(updatecontrols());
+    </script>
     @RenderSection("Scripts", required: false)
 </body>
 </html>

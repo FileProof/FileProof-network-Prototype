@@ -5,26 +5,36 @@
 
 <div class="container-fluid">
     <div class="col-md-4">
-        <form id="validateFileForm" asp-controller="Contract" asp-action="ValidateFile" method="post" enctype="multipart/form-data">
-
-            <h3 style="margin:20px 0px 20px 0px">Upload file</h3>
-            <input type="file" name="Files" multiple />
-            <br />
-            <input type="button" id="validateFileBtn" value="Upload File" class="btn btn-default" data-autoupdateform="#validateFileForm" data-cvproof-url="@Url.Action("ValidateFile", "Contract")" />
+        <form id="validateFileForm" asp-controller="Contract" asp-action="SaveFile" method="post" enctype="multipart/form-data">
+            <fieldset>
+                <legend>Upload file</legend>
+                <div class="input-group col-md-8" style="margin-bottom:20px">
+                    <label class="control-label">Validator:</label><input class="form-control" type="text" name="Validator" />
+                </div>
+                <div class="input-group col-md-12">
+                    <label class="btn btn-default btn-file col-md-4">
+                        Browse <input type="file" name="Files" multiple style="display:none;" data-autoupdateform="#validateFileForm" id="Files">
+                    </label>
+                </div>
+            </fieldset>
         </form>
     </div>
 
     <div class="col-md-4">
-        @using (Html.BeginForm("ValidateText", "Contract", FormMethod.Post, new { id = "validateTextForm" }))
+        @using (Html.BeginForm("SaveText", "Contract", FormMethod.Post, new { id = "validateTextForm" }))
         {
-
-            <h3 style="margin:20px 0px 20px 0px">Paste plain text</h3>
+        <fieldset>
+            <legend>Paste plain text</legend>
+            <div class="input-group col-md-8" style="margin-bottom:20px">
+                <label class="control-label">Validator:</label><input class="form-control" type="text" name="Validator" />
+            </div>
             @Html.TextAreaFor(e => e.Text, new { @class = "form-control", @cols = 80, @rows = 10 })
             <br />
-            <input type="button" id="validateTextBtn" value="Upload Text" class="btn btn-default" data-autoupdateform="#validateTextForm" data-cvproof-url="@Url.Action("ValidateText", "Contract")" />
+            <input type="button" id="validateTextBtn" value="Upload Text" class="btn btn-default" data-autoupdateform="#validateTextForm"/>
+
+        </fieldset>
         }
     </div>
-
 
     <div class="col-md-4">
         @if (Model.Header != null)
@@ -72,7 +82,7 @@
 </div>
 @section Scripts {
     <script type="text/javascript">
-        var updateForm = function (btn, data) {            
+        var updateForm = function (btn, data) {
             btn.closest('form').get(0).reset();
             btn.stopPropagation();
             btn.preventDefault();
@@ -100,7 +110,7 @@
             $form.off('submit', null, ajaxFormSubmit);
         };
 
-        $('#validateFileBtn').click(ajaxFileUpdate);
+        $('#Files').change(ajaxFileUpdate);
         $('#validateTextBtn').click(ajaxTextUpdate);
     </script>
 }

@@ -25,8 +25,7 @@ namespace CVProof.DAL.ETH
             using (System.Security.Cryptography.HashAlgorithm sha256 = System.Security.Cryptography.SHA256.Create())
             {
                 return sha256.ComputeHash(Encoding.UTF8.GetBytes(header.Serialize()));
-            }
-            
+            }            
         }        
     }
 }
