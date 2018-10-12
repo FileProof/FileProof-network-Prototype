@@ -22,8 +22,9 @@ namespace CVProof.DAL.SQL
                                     "[Id]," +
                                     "[Category]," +
                                     "[IssuerName]," +
-                                    "[ValidatorName]," +
                                     "[IssuerUUID]," +
+                                    "[ValidatorName]," +
+                                    "[ValidatorUUID]," +
                                     "[ValidatorLegitimationHeaderID]," +
                                     "[RecipientName]," +
                                     "[RecipientUUID]," +
@@ -35,7 +36,8 @@ namespace CVProof.DAL.SQL
                                     "[DataAddress]," +
                                     "[ValidationExpiry]," +
                                     "[DataHash]," +
-                                    "[Nonce]" +
+                                    "[Nonce]," +
+                                    "[Stored]" +
                                     " from Header";
                 cmd.CommandType = System.Data.CommandType.Text;
                 conn.Open();
@@ -49,20 +51,22 @@ namespace CVProof.DAL.SQL
                             HeaderId = reader.GetString(0),
                             Category = reader.GetString(1),
                             IssuerName = reader.GetString(2),
-                            ValidatorName = reader.GetString(3),
-                            IssuerUuid = reader.GetString(4),
+                            IssuerUuid = reader.GetString(3),
+                            ValidatorName = reader.GetString(4),                            
                             ValidatorUuid = reader.GetString(5),
-                            RecipientName = reader.GetString(6),
-                            RecipientUuid = reader.GetString(7),
-                            PreviousHeaderId = reader.GetString(8),
-                            ValidationCounter = reader.GetString(9),
-                            NextHeaderId = reader.GetString(10),
-                            Timestamp = reader.GetString(11),
-                            BlockNumber = reader.GetString(12),
-                            DataAddress = reader.GetString(13),
-                            ValidationExpiry = reader.GetString(14),
-                            DataHash = reader.GetString(15),
-                            Nonce = reader.GetString(16)
+                            ValidatorLegitimationId = reader.GetString(6),
+                            RecipientName = reader.GetString(7),
+                            RecipientUuid = reader.GetString(8),
+                            PreviousHeaderId = reader.GetString(9),
+                            ValidationCounter = reader.GetString(10),
+                            NextHeaderId = reader.GetString(11),
+                            Timestamp = reader.GetString(12),
+                            BlockNumber = reader.GetString(13),
+                            DataAddress = reader.GetString(14),
+                            ValidationExpiry = reader.GetString(15),
+                            DataHash = reader.GetString(16),
+                            Nonce = reader.GetString(17),
+                            Stored = reader.GetBoolean(18)
                         });
                     }
                 }
@@ -82,8 +86,9 @@ namespace CVProof.DAL.SQL
                                     "[Id]," +
                                     "[Category]," +
                                     "[IssuerName]," +
-                                    "[ValidatorName]," +
                                     "[IssuerUUID]," +
+                                    "[ValidatorName]," +
+                                    "[ValidatorUUID]," +
                                     "[ValidatorLegitimationHeaderID]," +
                                     "[RecipientName]," +
                                     "[RecipientUUID]," +
@@ -95,7 +100,8 @@ namespace CVProof.DAL.SQL
                                     "[DataAddress]," +
                                     "[ValidationExpiry]," +
                                     "[DataHash]," +
-                                    "[Nonce]" +
+                                    "[Nonce]," +
+                                    "[Stored]" +
                                     " from [dbo].[Header]" +
                                     "where id = @id";
 
@@ -112,20 +118,22 @@ namespace CVProof.DAL.SQL
                             HeaderId = reader.GetString(0),
                             Category = reader.GetString(1),
                             IssuerName = reader.GetString(2),
-                            ValidatorName = reader.GetString(3),
-                            IssuerUuid = reader.GetString(4),
+                            IssuerUuid = reader.GetString(3),
+                            ValidatorName = reader.GetString(4),                            
                             ValidatorUuid = reader.GetString(5),
-                            RecipientName = reader.GetString(6),
-                            RecipientUuid = reader.GetString(7),
-                            PreviousHeaderId = reader.GetString(8),
-                            ValidationCounter = reader.GetString(9),
-                            NextHeaderId = reader.GetString(10),
-                            Timestamp = reader.GetString(11),
-                            BlockNumber = reader.GetString(12),
-                            DataAddress = reader.GetString(13),
-                            ValidationExpiry = reader.GetString(14),
-                            DataHash = reader.GetString(15),
-                            Nonce = reader.GetString(16)
+                            ValidatorLegitimationId = reader.GetString(6),
+                            RecipientName = reader.GetString(7),
+                            RecipientUuid = reader.GetString(8),
+                            PreviousHeaderId = reader.GetString(9),
+                            ValidationCounter = reader.GetString(10),
+                            NextHeaderId = reader.GetString(11),
+                            Timestamp = reader.GetString(12),
+                            BlockNumber = reader.GetString(13),
+                            DataAddress = reader.GetString(14),
+                            ValidationExpiry = reader.GetString(15),
+                            DataHash = reader.GetString(16),
+                            Nonce = reader.GetString(17),
+                            Stored = reader.GetBoolean(18)
                         };
                     }
                 }
@@ -145,8 +153,9 @@ namespace CVProof.DAL.SQL
                                     "[Id]," +
                                     "[Category]," +
                                     "[IssuerName]," +
-                                    "[ValidatorName]," +
                                     "[IssuerUUID]," +
+                                    "[ValidatorName]," +
+                                    "[ValidatorUUID]," +
                                     "[ValidatorLegitimationHeaderID]," +
                                     "[RecipientName]," +
                                     "[RecipientUUID]," +
@@ -158,7 +167,8 @@ namespace CVProof.DAL.SQL
                                     "[DataAddress]," +
                                     "[ValidationExpiry]," +
                                     "[DataHash]," +
-                                    "[Nonce]" +
+                                    "[Nonce]," +
+                                    "[Stored]" +
                                     " from [dbo].[Header]" +
                                     "where [DataHash] = @datahash";
 
@@ -175,20 +185,22 @@ namespace CVProof.DAL.SQL
                             HeaderId = reader.GetString(0),
                             Category = reader.GetString(1),
                             IssuerName = reader.GetString(2),
-                            ValidatorName = reader.GetString(3),
-                            IssuerUuid = reader.GetString(4),
+                            IssuerUuid = reader.GetString(3),
+                            ValidatorName = reader.GetString(4),                            
                             ValidatorUuid = reader.GetString(5),
-                            RecipientName = reader.GetString(6),
-                            RecipientUuid = reader.GetString(7),
-                            PreviousHeaderId = reader.GetString(8),
-                            ValidationCounter = reader.GetString(9),
-                            NextHeaderId = reader.GetString(10),
-                            Timestamp = reader.GetString(11),
-                            BlockNumber = reader.GetString(12),
-                            DataAddress = reader.GetString(13),
-                            ValidationExpiry = reader.GetString(14),
-                            DataHash = reader.GetString(15),
-                            Nonce = reader.GetString(16)
+                            ValidatorLegitimationId = reader.GetString(6),
+                            RecipientName = reader.GetString(7),
+                            RecipientUuid = reader.GetString(8),
+                            PreviousHeaderId = reader.GetString(9),
+                            ValidationCounter = reader.GetString(10),
+                            NextHeaderId = reader.GetString(11),
+                            Timestamp = reader.GetString(12),
+                            BlockNumber = reader.GetString(13),
+                            DataAddress = reader.GetString(14),
+                            ValidationExpiry = reader.GetString(15),
+                            DataHash = reader.GetString(16),
+                            Nonce = reader.GetString(17),
+                            Stored = reader.GetBoolean(18)
                         };
                     }
                 }
@@ -208,9 +220,10 @@ namespace CVProof.DAL.SQL
                                 "[Id]," +
                                 "[Category]," +
                                 "[IssuerName]," +
-                                "[ValidatorName]," +
                                 "[IssuerUUID]," +
-                                "[ValidatorLegitimationHeaderID]," +
+                                "[ValidatorName]," +
+                                "[ValidatorUUID]," +
+                                "[ValidatorLegitimationHeaderID]," +                                
                                 "[RecipientName]," +
                                 "[RecipientUUID]," +
                                 "[PreviousHeaderID]," +
@@ -221,14 +234,16 @@ namespace CVProof.DAL.SQL
                                 "[DataAddress]," +
                                 "[ValidationExpiry]," +
                                 "[DataHash]," +
-                                "[Nonce]" +
+                                "[Nonce]," +
+                                "[Stored]" +
                                 " ) values (" +
                                 "'" + header.HeaderId + "'," +
                                 "'" + header.Category + "'," +
-                                "'" + header.IssuerName + "'," +
-                                "'" + header.ValidatorName + "'," +
+                                "'" + header.IssuerName + "'," +                                
                                 "'" + header.IssuerUuid + "'," +
+                                "'" + header.ValidatorName + "'," +
                                 "'" + header.ValidatorUuid + "'," +
+                                "'" + header.ValidatorLegitimationId + "'," +
                                 "'" + header.RecipientName + "'," +
                                 "'" + header.RecipientUuid + "'," +
                                 "'" + header.PreviousHeaderId + "'," +
@@ -239,7 +254,8 @@ namespace CVProof.DAL.SQL
                                 "'" + header.DataAddress + "'," +
                                 "'" + header.ValidationExpiry + "'," +
                                 "'" + header.DataHash + "'," +
-                                "'" + header.Nonce + "'" +
+                                "'" + header.Nonce + "'," +
+                                "'" + header.Stored + "'" +
                                 ")";
                     cmd.ExecuteNonQuery();
                 }
@@ -255,11 +271,12 @@ namespace CVProof.DAL.SQL
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = "update [dbo].[Header] set " +
-                                "[Category] = @category," +
-                                "[IssuerName] = @issuername," +
-                                "[ValidatorName] = @validatorname," +
+                                "[Category] = @category," +                                
+                                "[IssuerName] = @issuername," +                                
                                 "[IssuerUUID] = @issuerid," +
-                                "[ValidatorLegitimationHeaderID] = @validatorid," +
+                                "[ValidatorName] = @validatorname," +
+                                "[ValidatorUUID] = @validatorid," +
+                                "[ValidatorLegitimationHeaderID] = @validatorlegitimationid," +
                                 "[RecipientName] = @recipientname," +
                                 "[RecipientUUID] = @recipientid," +
                                 "[PreviousHeaderID] = @previd," +
@@ -270,25 +287,28 @@ namespace CVProof.DAL.SQL
                                 "[DataAddress] = @dataaddress," +
                                 "[ValidationExpiry] = @validationexpiry," +
                                 "[DataHash] = @datahash," +
-                                "[Nonce] = @nonce " +
+                                "[Nonce] = @nonce," +
+                                "[Stored] = @stored " +
                                 "Where Id = @id";                  
-                    cmd.Parameters.AddWithValue("@category", header.Category);
-                    cmd.Parameters.AddWithValue("@issuername", header.IssuerName);
-                    cmd.Parameters.AddWithValue("@validatorname", header.ValidatorName);
-                    cmd.Parameters.AddWithValue("@issuerid", header.IssuerUuid);
-                    cmd.Parameters.AddWithValue("@validatorid", header.ValidatorUuid);
-                    cmd.Parameters.AddWithValue("@recipientname", header.RecipientName);
-                    cmd.Parameters.AddWithValue("@recipientid", header.RecipientUuid);
-                    cmd.Parameters.AddWithValue("@previd", header.PreviousHeaderId);
-                    cmd.Parameters.AddWithValue("@validationcounter", header.ValidationCounter);
-                    cmd.Parameters.AddWithValue("@nextid", header.NextHeaderId);
-                    cmd.Parameters.AddWithValue("@timestamp", header.Timestamp);
-                    cmd.Parameters.AddWithValue("@blocknumber", header.BlockNumber);
-                    cmd.Parameters.AddWithValue("@dataaddress", header.DataAddress);
-                    cmd.Parameters.AddWithValue("@validationexpiry", header.ValidationExpiry);
-                    cmd.Parameters.AddWithValue("@datahash", header.DataHash);
-                    cmd.Parameters.AddWithValue("@nonce", header.Nonce);
-                    cmd.Parameters.AddWithValue("@id", header.HeaderId);
+                    cmd.Parameters.AddWithValue("@category", header.Category ?? String.Empty);
+                    cmd.Parameters.AddWithValue("@issuername", header.IssuerName ?? String.Empty);
+                    cmd.Parameters.AddWithValue("@validatorname", header.ValidatorName ?? String.Empty);
+                    cmd.Parameters.AddWithValue("@issuerid", header.IssuerUuid ?? String.Empty);
+                    cmd.Parameters.AddWithValue("@validatorid", header.ValidatorUuid ?? String.Empty);
+                    cmd.Parameters.AddWithValue("@validatorlegitimationid", header.ValidatorLegitimationId ?? String.Empty);
+                    cmd.Parameters.AddWithValue("@recipientname", header.RecipientName ?? String.Empty);
+                    cmd.Parameters.AddWithValue("@recipientid", header.RecipientUuid ?? String.Empty);
+                    cmd.Parameters.AddWithValue("@previd", header.PreviousHeaderId ?? String.Empty);
+                    cmd.Parameters.AddWithValue("@validationcounter", header.ValidationCounter ?? String.Empty);
+                    cmd.Parameters.AddWithValue("@nextid", header.NextHeaderId ?? String.Empty);
+                    cmd.Parameters.AddWithValue("@timestamp", header.Timestamp ?? String.Empty);
+                    cmd.Parameters.AddWithValue("@blocknumber", header.BlockNumber ?? String.Empty);
+                    cmd.Parameters.AddWithValue("@dataaddress", header.DataAddress ?? String.Empty);
+                    cmd.Parameters.AddWithValue("@validationexpiry", header.ValidationExpiry ?? String.Empty);
+                    cmd.Parameters.AddWithValue("@datahash", header.DataHash ?? String.Empty);
+                    cmd.Parameters.AddWithValue("@nonce", header.Nonce ?? String.Empty);
+                    cmd.Parameters.AddWithValue("@stored", header.Stored);
+                    cmd.Parameters.AddWithValue("@id", header.HeaderId ?? String.Empty);
                     try
                     {
                         cmd.ExecuteNonQuery();
@@ -310,9 +330,16 @@ namespace CVProof.DAL.SQL
 
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = "delete from [dbo].[Header] where [Category] <> 'root'";
+                    cmd.CommandText = "delete from [dbo].[Header]";
                     cmd.ExecuteNonQuery();
                 }
+
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = "INSERT [dbo].[Header] ([Id], [Category], [IssuerName], [IssuerUUID], [ValidatorName], [ValidatorUUID], [ValidatorLegitimationHeaderID], [RecipientName], [RecipientUUID], [PreviousHeaderID], [ValidationCounter], [NextHeaderID], [Timestamp], [BlockNumber], [DataAddress], [ValidationExpiry], [DataHash], [Nonce], [Stored]) VALUES (N'0x0100000000000000000000000000000000000000000000000000000000000000', N'Root', N'', N'', N'0x0100000000000000000000000000000000000000000000000000000000000000', N'0x0100000000000000000000000000000000000000000000000000000000000000', N'', N'', N'', N'', N'1', N'', N'1536625353', N'4014541', N'0xb5d5052f9417fc4b52fe06dc2ad82d849b03661ab452a2a81256d49818dcb4ed', N'', N'', N'', 0)";
+                    cmd.ExecuteNonQuery();
+                }
+
             }
         }
 

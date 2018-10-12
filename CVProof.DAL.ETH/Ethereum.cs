@@ -57,7 +57,7 @@ namespace CVProof.DAL.ETH
 
                 var saveHash = contract.GetFunction("saveHeaderHash");              
 
-                var data = saveHash.GetData(Convert.ToBytes(header.HeaderId.Substring(2)));
+                var data = saveHash.GetData(Convert.ToBytes(header.HeaderId));
 
                 var txCount = await _web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(_senderAddress);
 

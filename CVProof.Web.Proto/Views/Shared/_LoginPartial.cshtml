@@ -1,5 +1,3 @@
-@using System.Security.Principal
-
 <input id="curUser" type="hidden" value="@ViewBag.User">
 
 <ul class="nav navbar-nav navbar-right">
@@ -7,6 +5,9 @@
         <div style="display:inline-block; margin:8px 5px 5px 5px">
             <input id="Login" name="Login" type="text" class="form-control" style="width:350px">
         </div>
+    </li>
+    <li id="curUserName" class="hide">        
+        <a href="#" id="curUserNameLink">@if (!String.IsNullOrEmpty((string)ViewBag.User)) {@Html.Raw(((string)ViewBag.User).Substring(0, 7) + "..."); }</a>        
     </li>
     <li id="signInBtn" class="hide">
         <a href="#" onclick="login()">Sign in</a>

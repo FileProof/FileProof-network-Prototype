@@ -1,0 +1,206 @@
+﻿@model CVProof.Web.Models.HeaderViewModel
+<h2 style="margin:20px 20px 0px 0px;display:inline">Data container</h2><h5 style="margin-top:20px;display:inline">ver. @Model.ContainerVersion</h5>
+<br />
+
+<div class="container-fluid">
+    <div class="col-md-7">
+        @using (Html.BeginForm("SaveDoc", "Contract", FormMethod.Post, new { @id = "saveForm" }))
+        {
+            @Html.HiddenFor(e => e.HeaderId)
+            @Html.HiddenFor(e => e.Timestamp)
+            @Html.HiddenFor(e => e.BlockNumber)
+            @Html.HiddenFor(e => e.DataAddress)
+            @Html.HiddenFor(e => e.Link)
+
+
+            <div class="row">
+                <div class="label">Id: @Model.HeaderId</div>
+            </div>
+            <div class="row" style="margin-top:10px;">
+                <fieldset>
+                    <legend>General</legend>
+                    <div class="row" style="margin-top:10px;">
+                        <div class="col-md-2" style="display:inline">
+                            Category:
+                        </div>
+                        <div class="col-md-9" style="display:inline">
+                            @Html.DropDownListFor(e => e.Category, new SelectList(Model.CategoryList, "ID", "Desc"))
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+
+            <div class="row" style="margin-top:30px;">
+                <fieldset>
+                    <legend>Validator @if (!String.IsNullOrEmpty(Model.ValidationExpiry)) { Html.Raw("(validation expires: " + Html.DisplayFor(e => e.ValidationExpiry) + ")"); }</legend>
+                    <div class="row" style="margin-top:10px;">
+                        <div class="col-md-2" style="display:inline">
+                            Id:
+                        </div>
+                        <div class="col-md-9" style="display:inline">
+                            @Html.EditorFor(e => e.ValidatorUuid, new { htmlAttributes = new { style = "width:510px" } })
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top:10px;">
+                        <div class="col-md-2" style="display:inline">
+                            Name:
+                        </div>
+                        <div class="col-md-9" style="display:inline">
+                            @Html.EditorFor(e => e.ValidatorName, new { htmlAttributes = new { style = "width:510px" } })
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top:10px;">
+                        <div class="col-md-2" style="display:inline">
+                            Counter:
+                        </div>
+                        <div class="col-md-9" style="display:inline">
+                            @Html.EditorFor(e => e.ValidationCounter, new { htmlAttributes = new { style = "width:30px" } })
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top:10px;">
+                        <div class="col-md-2" style="display:inline; padding-right:0px">
+                            Delegated by:
+                        </div>
+                        <div class="col-md-9" style="display:inline">
+                            @Html.EditorFor(e => e.ValidatorLegitimationId, new { htmlAttributes = new { style = "width:510px" } })
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="row" style="margin-top:30px;">
+                <fieldset>
+                    <legend>Issuer</legend>
+                    <div class="row" style="margin-top:10px;">
+                        <div class="col-md-2" style="display:inline">
+                            Id:
+                        </div>
+                        <div class="col-md-9" style="display:inline">
+                            @Html.EditorFor(e => e.IssuerUuid, new { htmlAttributes = new { style = "width:510px" } })
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top:10px;">
+                        <div class="col-md-2" style="display:inline">
+                            Name:
+                        </div>
+                        <div class="col-md-9" style="display:inline">
+                            @Html.EditorFor(e => e.IssuerName, new { htmlAttributes = new { style = "width:510px" } })
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+
+            <div class="row" style="margin-top:30px;">
+                <fieldset>
+                    <legend>Recipient</legend>
+                    <div class="row" style="margin-top:10px;">
+                        <div class="col-md-2" style="display:inline">
+                            Id:
+                        </div>
+                        <div class="col-md-9" style="display:inline">
+                            @Html.EditorFor(e => e.RecipientUuid, new { htmlAttributes = new { style = "width:510px" } })
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top:10px;">
+                        <div class="col-md-2" style="display:inline">
+                            Name:
+                        </div>
+                        <div class="col-md-9" style="display:inline">
+                            @Html.EditorFor(e => e.RecipientName, new { htmlAttributes = new { style = "width:510px" } })
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+
+            <div class="row" style="margin-top:30px;">
+                <fieldset>
+                    <legend>Chain</legend>
+                    <div class="row" style="margin-top:10px;">
+                        <div class="col-md-2" style="display:inline">
+                            Previous Id:
+                        </div>
+                        <div class="col-md-9" style="display:inline">
+                            @Html.EditorFor(e => e.PreviousHeaderId, new { htmlAttributes = new { style = "width:510px" } })
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top:10px;">
+                        <div class="col-md-2" style="display:inline">
+                            Next Id:
+                        </div>
+                        <div class="col-md-9" style="display:inline">
+                            @Html.EditorFor(e => e.NextHeaderId, new { htmlAttributes = new { style = "width:510px" } })
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+
+            <div class="row" style="margin-top:30px;">
+                <fieldset>
+                    <legend>Data</legend>
+                    <div class="row" style="margin-top:10px;">
+                        <div class="col-md-2" style="display:inline">
+                            Datahash:
+                        </div>
+                        <div class="col-md-9" style="display:inline">
+                            @Html.EditorFor(e => e.DataHash, new { htmlAttributes = new { style = "width:510px" } })
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top:10px;">
+                        <div class="col-md-2" style="display:inline">
+                            Nonce:
+                        </div>
+                        <div class="col-md-9" style="display:inline">
+                            @Html.EditorFor(e => e.Nonce, new { htmlAttributes = new { style = "width:510px" } })
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top:10px;">
+                        <div class="col-md-2" style="display:inline">
+                            Link:
+                        </div>
+                        <div class="col-md-9" style="display:inline">
+                            @Html.DisplayFor(e => e.Link, new { htmlAttributes = new { style = "width:510px" } })
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="row" style="margin-top:30px;">
+                <fieldset>
+                    <legend>Blockchain</legend>
+                    <div class="row" style="margin-top:10px;">
+                        <div class="col-md-2" style="display:inline">
+                            Timestamp:
+                        </div>
+                        <div class="col-md-9" style="display:inline">
+                            @Html.DisplayFor(e => e.Timestamp, new { htmlAttributes = new { style = "width:510px" } })
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top:10px;">
+                        <div class="col-md-2" style="display:inline">
+                            BlockNumber:
+                        </div>
+                        <div class="col-md-9" style="display:inline">
+                            @Html.DisplayFor(e => e.BlockNumber, new { htmlAttributes = new { style = "width:510px" } })
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top:10px;">
+                        <div class="col-md-2" style="display:inline">
+                            Address:
+                        </div>
+                        <div class="col-md-9" style="display:inline">
+                            @Html.DisplayFor(e => e.DataAddress, new { htmlAttributes = new { style = "width:510px" } })
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="row" style="margin-top:30px;">
+                <div style="display:inline">
+                    <input type="submit" name="submitBtn" value="Save & Back" style="width:180px;">
+                </div>
+                <div style="display:inline">
+                    <input type="button" name="cancelBtn" value="Cancel" style="width:80px;" onclick="location.href='@Url.Action("ShowDocs", "Contract")'">
+                </div>
+
+            </div>
+        }
+    </div>
+</div>
+

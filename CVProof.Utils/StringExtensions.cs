@@ -8,13 +8,15 @@ namespace CVProof.Utils
     {
         public static string SubStringTo(this string s, int limit)
         {
-
-            if (s.Length > limit)
+            if (!String.IsNullOrEmpty(s))
             {
-                return $"{s.Substring(0, limit)}...";
+                if (s.Length > limit)
+                {
+                    return $"{s.Substring(0, limit)}...";
+                }
             }
-            return s;
 
+            return s;
         }
     }
 }

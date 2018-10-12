@@ -51,6 +51,7 @@ function login() {
         success: function (data){
             if (data.msg.length > 0) {
                 $('#curUser').val(data.msg);
+                $('#curUserNameLink').text(data.msg.substr(0,7) + '...');
                 updatecontrols();
             }
         },
@@ -73,9 +74,24 @@ function updatecontrols() {
         $("#loginInput").addClass('hide');
         $("#loginInput").removeClass('show');
 
+        $("#curUserName").show();
+        $("#curUserName").addClass('show');
+        $("#curUserName").removeClass('hide');
+
         $("#docs").show();
         $("#docs").addClass('show');
         $("#docs").removeClass('hide');
+        
+        if ($("#curUser").val() == "0x0100000000000000000000000000000000000000000000000000000000000000") {
+            $("#reset").show();
+            $("#reset").addClass('show');
+            $("#reset").removeClass('hide');
+        }
+        else {
+            $("#reset").hide();
+            $("#reset").addClass('hide');
+            $("#reset").removeClass('show');
+        }
 
         $("#signOutBtn").removeClass('hide');
         $("#signOutBtn").addClass('show');
@@ -89,9 +105,18 @@ function updatecontrols() {
         $("#loginInput").addClass('show');
         $("#loginInput").removeClass('hide');
 
+        $("#curUserName").hide();
+        $("#curUserName").addClass('hide');
+        $("#curUserName").removeClass('show');
+        //$("#curUserNameLink").text('');
+
         $("#docs").hide();
         $("#docs").addClass('hide');
         $("#docs").removeClass('show');
+
+        $("#reset").hide();
+        $("#reset").addClass('hide');
+        $("#reset").removeClass('show');
 
         $("#signOutBtn").removeClass('show');
         $("#signOutBtn").addClass('hide');
@@ -99,7 +124,7 @@ function updatecontrols() {
     }
 }
 
-function logout() {
+function logout(url) {
     $.ajax({
         type: "POST",
         url: "/Auth/Logout/",
@@ -110,6 +135,9 @@ function logout() {
     }).done(function (data) {
         $('#curUser').val('');
         updatecontrols();
+        if (url.length > 0) {
+            window.location.replace(url);
+        }
         });        
 }
 
@@ -117,14 +145,10 @@ function restart() {
     $.ajax({
         type: "POST",
         url: "/Contract/DeleteAll/",
-        processData: false,
-        data: data,
-        error: function () {
-            alert("signing out error");
-        }
+        processData: false
     });
 
-    logout();
+    logout("/Contract/Validate/");
 }
 
 

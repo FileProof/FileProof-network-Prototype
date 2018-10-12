@@ -4,83 +4,60 @@
 <br />
 
 <div class="container-fluid">
-    <div class="col-md-4">
+    <div class="col-md-5">
         <form id="validateFileForm" asp-controller="Contract" asp-action="SaveFile" method="post" enctype="multipart/form-data">
             <fieldset>
-                <legend>Upload file</legend>
+                <legend>Upload files</legend>
                 <div class="input-group col-md-8" style="margin-bottom:20px">
-                    <label class="control-label">Validator:</label><input class="form-control" type="text" name="Validator" />
+                    <label class="control-label">Validator (optional):</label><input class="form-control" type="text" name="Validator" />
                 </div>
-                <div class="input-group col-md-12">
-                    <label class="btn btn-default btn-file col-md-4">
-                        Browse <input type="file" name="Files" multiple style="display:none;" data-autoupdateform="#validateFileForm" id="Files">
+
+                <div style="margin-bottom:6px;">
+                    <label style="display:inline-block;">
+                        @Html.RadioButtonFor(m => m.StoreFile, true)
+                        Store a file and give me the link to a stored copy
                     </label>
                 </div>
+                <div style="margin-bottom:20px;">
+                    <label style="display:inline-block;">
+                        @Html.RadioButtonFor(m => m.StoreFile, false)
+                        Do not store the file body, just calc the fingerprint
+                    </label>
+                </div>
+
+
+                <div class="col-md-8" style="padding-left: 0px;margin-bottom:20px;">
+                    <input type="file" name="Files" multiple id="Files" class="col-md-8">
+                    <button id="clear" class="btn btn-default btn-xs">
+                        clear selection
+                    </button>
+                </div>
+                <div style="clear:both;">
+                <input type="button" id="validateFileBtn" value="Upload Files" class="btn btn-default" data-autoupdateform="#validateFileForm" />
+                </div>
+
             </fieldset>
         </form>
     </div>
 
-    <div class="col-md-4">
+    <div class="col-md-5">
         @using (Html.BeginForm("SaveText", "Contract", FormMethod.Post, new { id = "validateTextForm" }))
         {
-        <fieldset>
-            <legend>Paste plain text</legend>
-            <div class="input-group col-md-8" style="margin-bottom:20px">
-                <label class="control-label">Validator:</label><input class="form-control" type="text" name="Validator" />
-            </div>
-            @Html.TextAreaFor(e => e.Text, new { @class = "form-control", @cols = 80, @rows = 10 })
-            <br />
-            <input type="button" id="validateTextBtn" value="Upload Text" class="btn btn-default" data-autoupdateform="#validateTextForm"/>
+            <fieldset>
+                <legend>Paste plain text</legend>
+                <div class="input-group col-md-8" style="margin-bottom:20px">
+                    <label class="control-label">Validator (optional):</label><input class="form-control" type="text" name="Validator" />
+                </div>
+                @Html.TextAreaFor(e => e.Text, new { @class = "form-control", @cols = 80, @rows = 10 })
+                <br />
+                <input type="button" id="validateTextBtn" value="Upload Text" class="btn btn-default" data-autoupdateform="#validateTextForm" />
 
-        </fieldset>
+            </fieldset>
         }
     </div>
-
-    <div class="col-md-4">
-        @if (Model.Header != null)
-        {
-            <h3 style="margin:20px 0px 20px 0px">Result header</h3>
-            <div class="row">
-                <div style="display:inline" class="col-md-6">
-                    @Html.LabelFor(e => e.Header.ContainerVersion)
-                </div>
-                <div style="display:inline" class="col-md-6">
-                    @Html.DisplayFor(e => e.Header.ContainerVersion, new { @class = "form-control" })
-                </div>
-            </div>
-            <div class="row">
-                <div style="display:inline" class="col-md-6">
-                    @Html.LabelFor(e => e.Header.DataHash)
-                </div>
-            </div>
-            <div class="row">
-                <div class="class=" col-md-12"">
-                    @Html.DisplayFor(e => e.Header.DataHash, new { @class = "form-control" })
-                </div>
-            </div>
-            @*@Html.LabelFor(e => e.Header.HeaderId, new { @class = "form-control" })
-                @Html.DisplayFor(e => e.Header.HeaderId, new { @class = "form-control" })
-                @Html.DisplayFor(e => e.Header.Category, new { @class = "form-control" })
-                @Html.DisplayFor(e => e.Header.ValidatorName, new { @class = "form-control" })
-                @Html.DisplayFor(e => e.Header.RecipientName, new { @class = "form-control" })
-                @Html.DisplayFor(e => e.Header.ValidatorUuid, new { @class = "form-control" })
-                @Html.DisplayFor(e => e.Header.RecipientUuid, new { @class = "form-control" })
-                @Html.DisplayFor(e => e.Header.PreviousHeaderId, new { @class = "form-control" })
-                @Html.DisplayFor(e => e.Header.RecipientUuid, new { @class = "form-control" })
-                @Html.DisplayFor(e => e.Header.NextHeaderId, new { @class = "form-control" })
-                @Html.DisplayFor(e => e.Header.RecipientUuid, new { @class = "form-control" })
-                @Html.DisplayFor(e => e.Header.Timestamp, new { @class = "form-control" })
-                @Html.DisplayFor(e => e.Header.RecipientUuid, new { @class = "form-control" })
-                @Html.DisplayFor(e => e.Header.BlockNumber, new { @class = "form-control" })
-                @Html.DisplayFor(e => e.Header.DataAddress, new { @class = "form-control" })
-                @Html.DisplayFor(e => e.Header.ValidationExpiry, new { @class = "form-control" })
-                @Html.DisplayFor(e => e.Header.DataHash, new { @class = "form-control" })
-                @Html.DisplayFor(e => e.Header.Nonce, new { @class = "form-control" })*@
-        }
-    </div>
-
 </div>
 @section Scripts {
+    <script type="text/javascript" src="js/bootstrap-filestyle.min.js"></script>
     <script type="text/javascript">
         var updateForm = function (btn, data) {
             btn.closest('form').get(0).reset();
@@ -108,9 +85,23 @@
             $form.on('submit', null, { callback: updateForm, input: $input }, ajaxFormSubmit);
             $form.trigger('submit');
             $form.off('submit', null, ajaxFormSubmit);
+
+            $('#Files').filestyle('clear');
         };
 
-        $('#Files').change(ajaxFileUpdate);
+        $('#validateFileBtn').click(ajaxFileUpdate);
         $('#validateTextBtn').click(ajaxTextUpdate);
+
+        $('#Files').filestyle({
+            btnClass: 'btn-default',
+            text: "Choose file",            
+            badge: true,
+            placeholder: "No file" 
+        });
+
+        $('#clear').click(function (e) {
+            e.preventDefault();
+            $('#Files').filestyle('clear');
+        });
     </script>
 }

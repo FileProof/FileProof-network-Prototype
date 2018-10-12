@@ -22,6 +22,7 @@ namespace CVProof.Models
         public string RecipientName { get; set; }
         public string IssuerUuid { get; set; }
         public string ValidatorUuid { get; set; }
+        public string ValidatorLegitimationId { get; set; }
         public string RecipientUuid { get; set; }
         public string PreviousHeaderId { get; set; }
         public string NextHeaderId { get; set; }
@@ -32,6 +33,7 @@ namespace CVProof.Models
         public string ValidationCounter { get; set; }
         public string DataHash { get; set; }
         public string Nonce { get; set; }
+        public bool Stored { get; set; }
     }
 
     public class HashDto

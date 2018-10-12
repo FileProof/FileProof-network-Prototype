@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CVProof.Web.Proto", "CVProo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CVProof.Utils", "CVProof.Utils\CVProof.Utils.csproj", "{36F21C78-E834-4781-B463-9D44F00A5E71}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CVProof.DAL.AWS", "CVProof.DAL.S3\CVProof.DAL.AWS.csproj", "{3F53FC69-74F1-444B-9908-4E2BEA0B410F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{36F21C78-E834-4781-B463-9D44F00A5E71}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{36F21C78-E834-4781-B463-9D44F00A5E71}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{36F21C78-E834-4781-B463-9D44F00A5E71}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3F53FC69-74F1-444B-9908-4E2BEA0B410F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F53FC69-74F1-444B-9908-4E2BEA0B410F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3F53FC69-74F1-444B-9908-4E2BEA0B410F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F53FC69-74F1-444B-9908-4E2BEA0B410F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

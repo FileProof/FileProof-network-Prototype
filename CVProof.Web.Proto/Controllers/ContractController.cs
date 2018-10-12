@@ -1,54 +1,35 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.IdentityModel.Tokens.Jwt;
-using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.Extensions.Configuration;
-
-using System.ComponentModel.DataAnnotations;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using System.Linq;
-using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
-
-using Microsoft.IdentityModel.Tokens;
+﻿using CVProof.DAL.ETH;
 using CVProof.DAL.SQL;
-using CVProof.Models;
+using CVProof.DAL.AWS;
 
+using CVProof.Models;
+using CVProof.Utils;
+using CVProof.Web.Models;
+
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using CVProof.Web.Models;
+using System.ComponentModel.DataAnnotations;
 using System.Data.SqlClient;
-using Microsoft.Extensions.Configuration;
+using System.Diagnostics;
+using System.IdentityModel.Tokens.Jwt;
 using System.IO;
-using CVProof.Utils;
-using CVProof.DAL.SQL;
-using CVProof.DAL.ETH;
-using CVProof.Models;
-
+using System.Linq;
+using System.Security.Claims;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace CVProof.Web.Controllers
-{   
+{
     public class ContractController : BaseController
     {
         public ContractController(IConfiguration configuration, IUserMgr user) : base(configuration, user){}
@@ -93,6 +74,7 @@ namespace CVProof.Web.Controllers
             header.ValidatorUuid = model.Validator;
             header.ValidatorName = model.Validator;
             header.Category = Category.File.ToString();
+            header.Stored = model.StoreFile;
 
             try
             {
@@ -113,6 +95,14 @@ namespace CVProof.Web.Controllers
                         header.HeaderId = Utils.Convert.ToHexString(header.GetHashBytes());
 
                         SQLData.InsertHeader(header);
+
+                        if (model.StoreFile)
+                        {
+                            using (var stream = file.OpenReadStream())
+                            {
+                                await S3.WriteObject(stream, "cvproof", header.HeaderId, file.ContentType);
+                            }                                                      
+                        }                        
                     }
                 }
             }
@@ -121,6 +111,11 @@ namespace CVProof.Web.Controllers
             {
 
             }
+        }
+
+        public ActionResult Sample()
+        {
+            return View();
         }
 
         [Authorize]
@@ -238,6 +233,31 @@ namespace CVProof.Web.Controllers
 
             return View(new HeaderListViewModel(hdrList));
         }
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public IActionResult EditDoc(string id)
+        {
+            if (_user.IsAuthenticated) { ViewBag.User = _user.User; }
+            ViewData["Title"] = "Documents";
+
+            HeaderModel header = SQLData.GetHeaderById(id);
+
+            return View(new HeaderViewModel(header));
+        }
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [HttpPost]
+        public IActionResult SaveDoc(HeaderViewModel model)
+        {
+            if (_user.IsAuthenticated) { ViewBag.User = _user.User; }
+            ViewData["Title"] = "Documents";
+
+            SQLData.UpdateHeader(model.GetHeaderModel());
+
+            return RedirectToAction("ShowDocs");
+        }
+
+
 
         [AllowAnonymous]
         public IActionResult Error()

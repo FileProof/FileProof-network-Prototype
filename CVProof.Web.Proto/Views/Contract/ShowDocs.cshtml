@@ -17,6 +17,7 @@
             <th>Address</th>
             <th>Data hash</th>
             <th></th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
@@ -38,7 +39,17 @@
             {
                 <tr id="row_@item.HeaderId">
                     <td id="id_@item.HeaderId"><a href="@item.HeaderId" class="clip" onclick="return false;">[copy] @item.HeaderIdShortened</a><br /></td>
-                    <td id="cat_@item.HeaderId">@Html.DisplayFor(i => item.Category)</td>
+                    <td id="cat_@item.HeaderId">
+                        @if (String.IsNullOrEmpty(item.Link))
+                        {
+                            @Html.DisplayFor(i => item.Category)
+                        }
+                        else
+                        {
+                            <a href="@item.Link">@Html.DisplayFor(i => item.Category)</a>
+                        }
+
+                    </td>
                     <td id="val_@item.HeaderId"><a href="@item.ValidatorName" class="clip" onclick="return false;">[copy] @item.ValidatorNameShortened</a></td>
                     <td id="time_@item.HeaderId">@Html.DisplayFor(i => item.Timestamp)</td>
                     <td id="block_@item.HeaderId">
@@ -56,6 +67,7 @@
                     {
                         <td id="cert_@item.HeaderId"><a href="#" class="btn btn-success btn-sm" onclick="validate('@item.HeaderId')"><i class="glyphicon glyphicon-certificate"></i></a></td>
                     }
+                    <td><a href=@Url.Action("EditDoc", new { id = item.HeaderId }) class="btn btn-sm"><i class="glyphicon glyphicon-edit"></i></a></td>
 
                 </tr>
             }
