@@ -27,7 +27,7 @@
 
 
                 <div class="col-md-8" style="padding-left: 0px;margin-bottom:20px;">
-                    <input type="file" name="Files" multiple id="Files" class="col-md-8">
+                    <input type="file" name="Files" multiple  accept=".pdf" id="Files" class="col-md-8">
                     <button id="clear" class="btn btn-default btn-xs">
                         clear selection
                     </button>
@@ -55,10 +55,11 @@
             </fieldset>
         }
     </div>
-</div>
+</div>  
 @section Scripts {
-    <script type="text/javascript" src="js/bootstrap-filestyle.min.js"></script>
+    <script type="text/javascript" src="~/js/bootstrap-filestyle.min.js"></script>
     <script type="text/javascript">
+
         var updateForm = function (btn, data) {
             btn.closest('form').get(0).reset();
             btn.stopPropagation();

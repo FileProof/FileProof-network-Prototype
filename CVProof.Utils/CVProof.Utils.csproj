@@ -5,7 +5,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="itext7" Version="7.1.4" />
     <PackageReference Include="Nethereum.Web3" Version="2.5.1" />
+    <PackageReference Include="PDFsharp-gdi" Version="1.50.4845-RC2a" />
   </ItemGroup>
 
 </Project>

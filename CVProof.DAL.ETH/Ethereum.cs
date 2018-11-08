@@ -57,7 +57,7 @@ namespace CVProof.DAL.ETH
 
                 var saveHash = contract.GetFunction("saveHeaderHash");              
 
-                var data = saveHash.GetData(Convert.ToBytes(header.HeaderId));
+                var data = saveHash.GetData(Convert.ToBytes(header.GlobalHash));
 
                 var txCount = await _web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(_senderAddress);
 
@@ -86,7 +86,7 @@ namespace CVProof.DAL.ETH
                 header.Timestamp = log[0].Event.Timestamp.ToString();
                 header.DataAddress = receipt.TransactionHash;
                 
-                header.HeaderId = Utils.Convert.ToHexString(log[0].Event.HeaderHash);
+                header.GlobalHash = Utils.Convert.ToHexString(log[0].Event.HeaderHash);
             }
             catch (System.Exception e)
             {               

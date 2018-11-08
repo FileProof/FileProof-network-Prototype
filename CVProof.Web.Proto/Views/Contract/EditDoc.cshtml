@@ -59,7 +59,7 @@
                     </div>
                     <div class="row" style="margin-top:10px;">
                         <div class="col-md-2" style="display:inline; padding-right:0px">
-                            Delegated by:
+                            Delegation Id:
                         </div>
                         <div class="col-md-9" style="display:inline">
                             @Html.EditorFor(e => e.ValidatorLegitimationId, new { htmlAttributes = new { style = "width:510px" } })
@@ -146,6 +146,14 @@
                     </div>
                     <div class="row" style="margin-top:10px;">
                         <div class="col-md-2" style="display:inline">
+                            Globalhash:
+                        </div>
+                        <div class="col-md-9" style="display:inline">
+                            @Html.EditorFor(e => e.GlobalHash, new { htmlAttributes = new { style = "width:510px" } })
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top:10px;">
+                        <div class="col-md-2" style="display:inline">
                             Nonce:
                         </div>
                         <div class="col-md-9" style="display:inline">
@@ -178,7 +186,7 @@
                             BlockNumber:
                         </div>
                         <div class="col-md-9" style="display:inline">
-                            @Html.DisplayFor(e => e.BlockNumber, new { htmlAttributes = new { style = "width:510px" } })
+                            <a href="https://ropsten.etherscan.io/block/@Model.BlockNumber">@Html.DisplayFor(e => e.BlockNumber, new { htmlAttributes = new { style = "width:510px" } })</a>
                         </div>
                     </div>
                     <div class="row" style="margin-top:10px;">
@@ -186,8 +194,8 @@
                             Address:
                         </div>
                         <div class="col-md-9" style="display:inline">
-                            @Html.DisplayFor(e => e.DataAddress, new { htmlAttributes = new { style = "width:510px" } })
-                        </div>
+                            <a href="https://ropsten.etherscan.io/tx/@Model.DataAddress">@Html.DisplayFor(e => e.DataAddress, new { htmlAttributes = new { style = "width:510px" } })</a>
+</div>
                     </div>
                 </fieldset>
             </div>

@@ -42,6 +42,11 @@ namespace CVProof.Utils
             return Encoding.UTF8.GetString(utf8Bytes);
         }
 
+        public static string ToBytesString(byte[] byteArray)
+        {
+            return Encoding.UTF8.GetString(byteArray);
+        }
+
         public static string ReplaceUnicodeEscapeChars(string utf8String)
         {
             string ret = null;

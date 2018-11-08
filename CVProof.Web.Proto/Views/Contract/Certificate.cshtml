@@ -1,0 +1,259 @@
+﻿@using CVProof.Utils;
+@model CVProof.Web.Models.HeaderViewModel;
+@{ Layout = "~/Views/Shared/_LayoutNoPadding.cshtml"; }
+<div class="row">
+    <div class="container-fluid" style="display:flex;padding-top:10px;padding-left:0px">
+        <div class="col-md-5">
+            <div style="display:inline-block; margin-left:125px;">
+                <div style="border:2px solid black; background-color:#eeeeee; padding:10px; width:200px; height:200px;">
+                    <form id="verifyFileForm" asp-controller="Contract" asp-action="VerifyFile" method="post" enctype="multipart/form-data">
+                        @Html.HiddenFor(e => e.HeaderId)
+                        <div style="text-align:center;font-size:18px;">UPLOAD FILE</div>
+                        <div style="text-align:center;font-size:18px;">AUTHENTICITY CHECK</div>
+                        <div class="col-md-12" style="padding-left:0px;margin:10px;text-align:center;">
+                            <input type="file" multiple name="Files" id="Files" accept=".pdf" class="col-md-8">
+                            <button id="clear" class="btn btn-default btn-xs">
+                                clear selection
+                            </button>
+                        </div>
+                        <div style="clear:both; margin-top:10px; text-align:center;">
+                            <input type="button" id="verifyFileBtn" value="VERIFY" class="btn btn-default" data-autoupdateform="#verifyFileForm" style="background-color:#10AFFF;color:white;" />
+                        </div>
+                    </form>
+                </div>
+                <div>
+                    <div style="display:flex;float:left;">
+                        <div style="text-align:center;display:inline-block;">
+                            <div id="verifyFileAreaTrue" style="width:20px;height:24px;margin:15px 15px 5px 15px; border:2px solid black;"></div>
+                            <div style="font-size:14px;">TRUE</div>
+                        </div>
+                    </div>
+                    <div style="display:flex;float:right;">
+                        <div style="text-align:center;display:inline-block;">
+                            <div id="verifyFileAreaFalse" style="width:20px;height:24px;margin:15px 15px 5px 15px; border:2px solid black;"></div>
+                            <div style="font-size:14px;">FALSE</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="padding:10px 100px 50px 0px;">
+                @if(!String.IsNullOrEmpty(Model.DataAddress))
+                {
+                @Html.Raw($"<a href='https://ropsten.etherscan.io/tx/{Model.DataAddress}#eventlog'><img src='http://token-certificate.fileproof.org/images/blockchain-button.png'></a>");
+                }
+                else
+                {
+                @Html.Raw($"<a href='#'><img src='http://token-certificate.fileproof.org/images/blockchain-button.png'></a>");
+                }
+            </div>
+        </div>
+
+        <div class="col-md-7" style="float:right;">
+            <div class="row">
+                <div class="row" style="margin-top:0px;">
+                    <div class="col-md-4" style="display:inline-block; padding:6px 12px 6px 12px; font-size:22px; border-style:solid; border-width:2px; background-color:#eeeeee">
+                        VALIDATION&nbsp;ID:
+                </div>
+                    <div class="col-md-4 col-md-offset-1" style="display:inline-block; padding:6px 12px 6px 12px; font-size:22px;">
+                        <div>
+                            @if (!String.IsNullOrEmpty(Model.HeaderId))
+                            {
+                            @Html.Raw($"<a href='{ Model.HeaderId }' class='clip' onclick='return false;'>{ Model.HeaderId.SubStringTo(30) }&nbsp;[copy]</a>")
+                            }
+                            else
+                            {
+                            @Html.Raw("None");
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row" style="margin-top:10px;">
+                    <div class="col-md-4" style="display:inline-block; padding:6px 12px 6px 12px; font-size:22px; border-style:solid; border-width:2px; background-color:#eeeeee">
+                        ISSUED&nbsp;BY:
+                    </div>
+                    <div class="col-md-4 col-md-offset-1" style="display:inline-block; padding:0px 12px 0px 12px; font-size:18px;">
+                        <div>
+                            @if (!String.IsNullOrEmpty(Model.IssuerName))
+                            {
+                                String link = "#";
+                                if (!String.IsNullOrEmpty(Model.IssuerUuid)) { link = Url.Action("Certificate", new { id = Model.IssuerUuid }); }
+                            @Html.Raw($"<a href='{ link }'>{ Model.IssuerName.SubStringTo(44) }</a>")
+                            }
+                            else
+                            {
+                            @Html.Raw("None");
+                            }
+                        </div>
+
+                        <div>
+                            @if (!String.IsNullOrEmpty(Model.IssuerUuid))
+                            {
+                            @Html.Raw($"<a href='{ Url.Action("Certificate", new { id = Model.IssuerUuid })}'>{ Model.IssuerUuid.SubStringTo(44) }</a>")
+                            }
+                            else
+                            {
+                            @Html.Raw("None");
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="row" style="margin-top:10px;">
+                    <div class="col-md-4" style="display:inline-block; padding:6px 12px 6px 12px; font-size:22px; border-style:solid; border-width:2px; background-color:#eeeeee">
+                        VALIDATED&nbsp;BY:
+                    </div>
+                    <div class="col-md-4 col-md-offset-1" style="display:inline-block; padding:0px 12px 0px 12px; font-size:18px;">
+                        <div>
+                            @if (!String.IsNullOrEmpty(Model.ValidatorName))
+                            {
+                                String link = "#";
+                                if (!String.IsNullOrEmpty(Model.ValidatorUuid)) { link = Url.Action("Certificate", new { id = Model.ValidatorUuid }); }
+                            @Html.Raw($"<a href='{ link }'>{ Model.ValidatorName.SubStringTo(44) }</a>")
+                            }
+                            else
+                            {
+                            @Html.Raw("None");
+                            }
+                        </div>
+
+                        <div>
+                            @if (!String.IsNullOrEmpty(Model.ValidatorUuid))
+                            {
+                            @Html.Raw($"<a href='{ Url.Action("Certificate", new { id = Model.ValidatorUuid })}'>{ Model.ValidatorUuid.SubStringTo(44) }</a>")
+                            }
+                            else
+                            {
+                            @Html.Raw("None");
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row" style="margin-top:10px;">
+                    <div class="col-md-4" style="display:inline-block; padding:6px 12px 6px 12px; font-size:22px; border-style:solid; border-width:2px; background-color:#eeeeee">
+                        DELEGATION&nbsp;ID:
+                    </div>
+                    <div class="col-md-4 col-md-offset-1" style="display:inline-block; padding:6px 12px 6px 12px; font-size:22px;">
+                        <div>
+                            @if (!String.IsNullOrEmpty(Model.ValidatorLegitimationId))
+                            {
+                            @Html.Raw($"<a href='{ Url.Action("Certificate", new { id = Model.ValidatorLegitimationId })}'>{ Model.ValidatorLegitimationId.SubStringTo(30) }</a>")
+                            }
+                            else
+                            {
+                            @Html.Raw("None");
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="row" style="margin-top:10px;display:flex;">
+                    <div class="col-md-4" style="display:inline-block; padding:6px 12px 6px 12px; font-size:22px; border-style:solid; border-width:2px; background-color:#eeeeee">
+                        VALIDATED ON<br />
+                        <small>(blockchain timestamp)</small>
+                    </div>
+                    <div class="col-md-4 col-md-offset-1" style="padding:6px 12px 6px 12px; font-size:22px;">
+                        <div style="display:inline-block;">
+                            @if (Model.Timestamp != null)
+                            {
+                            @Html.Raw(Model.Timestamp.Value.ToString("g").Replace(" ", "&nbsp;"));
+                            }
+                            else
+                            {
+                            @Html.Raw("None");
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="row" style="margin-top:10px;">
+                    <div class="col-md-4" style="display:inline-block; padding:6px 12px 6px 12px; font-size:22px; border-style:solid; border-width:2px; background-color:#eeeeee">
+                        FILE<br />
+                        <small>(original copy)</small>
+                    </div>
+                    <div class="col-md-4 col-md-offset-1" style="display:inline-block; padding:6px 12px 6px 12px; font-size:22px;">
+                        <div>
+                            @if (!String.IsNullOrEmpty(Model.Link))
+                            {
+                            @Html.Raw($"<a href='{ Model.Link }' download><i class='glyphicon glyphicon-download-alt' style='font-size:12px;'></i> Download</a>")
+                            }
+                            else
+                            {
+                            @Html.Raw("None");
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="row" style="margin-top:10px;">
+                    <div class="col-md-4" style="display:inline-block; padding:6px 12px 6px 12px; font-size:22px; border-style:solid; border-width:2px; background-color:#eeeeee">
+                        PROOF<br>
+                        <small>(global hash)</small>
+                    </div>
+                    <div class="col-md-4 col-md-offset-1" style="display:inline-block; padding:6px 12px 6px 12px; font-size:22px;">
+                        <div>
+                            @if (!String.IsNullOrEmpty(Model.GlobalHash))
+                            {
+                            @Html.Raw($"<a href='{ Model.GlobalHash }' class='clip' onclick='return false;'>{ Model.GlobalHash.SubStringTo(30) }&nbsp;[copy]</a>")
+                            }
+                            else
+                            {
+                            @Html.Raw("None");
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {    
+    <script src="//cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.4.0/clipboard.min.js"></script>
+    <script type="text/javascript">
+        new Clipboard('.clip', {
+            text: function (trigger) {
+                return trigger.getAttribute('href');
+            }
+        });
+    </script>
+
+    <script type="text/javascript" src="~/js/bootstrap-filestyle.min.js"></script>
+    <script type="text/javascript">
+
+        var updateFileStatus = function (btn, data) {
+            var fileareatrue = $('#verifyFileAreaTrue');
+            var fileareafalse = $('#verifyFileAreaFalse');
+            if (data) { fileareatrue.addClass('make-blue'); } else { fileareafalse.addClass('make-red'); }
+        };
+
+        var ajaxFileUpdate = function (e) {
+            var fileareatrue = $('#verifyFileAreaTrue');
+            var fileareafalse = $('#verifyFileAreaFalse');
+            fileareatrue.removeClass('make-blue');
+            fileareafalse.removeClass('make-red');
+            
+            e.preventDefault();
+            var $input = $(this);
+
+            var formId = $input.attr('data-autoupdateform');
+            var $form = $(formId);
+
+            $form.on('submit', null, { callback: updateFileStatus, input: $input }, ajaxFormSubmit);
+            $form.trigger('submit');
+            $form.off('submit', null, ajaxFormSubmit);
+        };
+
+        $('#verifyFileBtn').click(ajaxFileUpdate);        
+
+        $('#Files').filestyle({
+            btnClass: 'btn-default',
+            text: "Choose file",
+            placeholder: "No file"
+        });
+
+        $('#clear').click(function (e) {
+            e.preventDefault();
+            $('#Files').filestyle('clear');
+        });
+    </script>
+}
+
+

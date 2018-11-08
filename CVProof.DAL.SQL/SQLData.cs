@@ -37,7 +37,8 @@ namespace CVProof.DAL.SQL
                                     "[ValidationExpiry]," +
                                     "[DataHash]," +
                                     "[Nonce]," +
-                                    "[Stored]" +
+                                    "[Stored]," +
+                                    "[GlobalHash]" +
                                     " from Header";
                 cmd.CommandType = System.Data.CommandType.Text;
                 conn.Open();
@@ -66,7 +67,8 @@ namespace CVProof.DAL.SQL
                             ValidationExpiry = reader.GetString(15),
                             DataHash = reader.GetString(16),
                             Nonce = reader.GetString(17),
-                            Stored = reader.GetBoolean(18)
+                            Stored = reader.GetBoolean(18),
+                            GlobalHash = reader.GetString(19)
                         });
                     }
                 }
@@ -101,7 +103,8 @@ namespace CVProof.DAL.SQL
                                     "[ValidationExpiry]," +
                                     "[DataHash]," +
                                     "[Nonce]," +
-                                    "[Stored]" +
+                                    "[Stored]," +
+                                    "[GlobalHash]" +
                                     " from [dbo].[Header]" +
                                     "where id = @id";
 
@@ -133,7 +136,8 @@ namespace CVProof.DAL.SQL
                             ValidationExpiry = reader.GetString(15),
                             DataHash = reader.GetString(16),
                             Nonce = reader.GetString(17),
-                            Stored = reader.GetBoolean(18)
+                            Stored = reader.GetBoolean(18),
+                            GlobalHash = reader.GetString(19),
                         };
                     }
                 }
@@ -168,7 +172,8 @@ namespace CVProof.DAL.SQL
                                     "[ValidationExpiry]," +
                                     "[DataHash]," +
                                     "[Nonce]," +
-                                    "[Stored]" +
+                                    "[Stored]," +
+                                    "[GlobalHash]" +
                                     " from [dbo].[Header]" +
                                     "where [DataHash] = @datahash";
 
@@ -200,7 +205,8 @@ namespace CVProof.DAL.SQL
                             ValidationExpiry = reader.GetString(15),
                             DataHash = reader.GetString(16),
                             Nonce = reader.GetString(17),
-                            Stored = reader.GetBoolean(18)
+                            Stored = reader.GetBoolean(18),
+                            GlobalHash = reader.GetString(19)
                         };
                     }
                 }
@@ -235,7 +241,8 @@ namespace CVProof.DAL.SQL
                                 "[ValidationExpiry]," +
                                 "[DataHash]," +
                                 "[Nonce]," +
-                                "[Stored]" +
+                                "[Stored]," +
+                                "[GlobalHash]" +
                                 " ) values (" +
                                 "'" + header.HeaderId + "'," +
                                 "'" + header.Category + "'," +
@@ -254,8 +261,9 @@ namespace CVProof.DAL.SQL
                                 "'" + header.DataAddress + "'," +
                                 "'" + header.ValidationExpiry + "'," +
                                 "'" + header.DataHash + "'," +
-                                "'" + header.Nonce + "'," +
-                                "'" + header.Stored + "'" +
+                                "'" + header.Nonce.Replace("'", @"#") + "'," + // Preventing single quote in sql clause
+                                "'" + header.Stored + "'," +
+                                "'" + header.GlobalHash + "'" +
                                 ")";
                     cmd.ExecuteNonQuery();
                 }
@@ -288,7 +296,8 @@ namespace CVProof.DAL.SQL
                                 "[ValidationExpiry] = @validationexpiry," +
                                 "[DataHash] = @datahash," +
                                 "[Nonce] = @nonce," +
-                                "[Stored] = @stored " +
+                                "[Stored] = @stored," +
+                                "[GlobalHash] = @globalhash " +
                                 "Where Id = @id";                  
                     cmd.Parameters.AddWithValue("@category", header.Category ?? String.Empty);
                     cmd.Parameters.AddWithValue("@issuername", header.IssuerName ?? String.Empty);
@@ -308,6 +317,7 @@ namespace CVProof.DAL.SQL
                     cmd.Parameters.AddWithValue("@datahash", header.DataHash ?? String.Empty);
                     cmd.Parameters.AddWithValue("@nonce", header.Nonce ?? String.Empty);
                     cmd.Parameters.AddWithValue("@stored", header.Stored);
+                    cmd.Parameters.AddWithValue("@globalhash", header.GlobalHash ?? String.Empty);
                     cmd.Parameters.AddWithValue("@id", header.HeaderId ?? String.Empty);
                     try
                     {
@@ -336,7 +346,7 @@ namespace CVProof.DAL.SQL
 
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = "INSERT [dbo].[Header] ([Id], [Category], [IssuerName], [IssuerUUID], [ValidatorName], [ValidatorUUID], [ValidatorLegitimationHeaderID], [RecipientName], [RecipientUUID], [PreviousHeaderID], [ValidationCounter], [NextHeaderID], [Timestamp], [BlockNumber], [DataAddress], [ValidationExpiry], [DataHash], [Nonce], [Stored]) VALUES (N'0x0100000000000000000000000000000000000000000000000000000000000000', N'Root', N'', N'', N'0x0100000000000000000000000000000000000000000000000000000000000000', N'0x0100000000000000000000000000000000000000000000000000000000000000', N'', N'', N'', N'', N'1', N'', N'1536625353', N'4014541', N'0xb5d5052f9417fc4b52fe06dc2ad82d849b03661ab452a2a81256d49818dcb4ed', N'', N'', N'', 0)";
+                    cmd.CommandText = "INSERT [dbo].[Header] ([Id], [Category], [IssuerName], [IssuerUUID], [ValidatorName], [ValidatorUUID], [ValidatorLegitimationHeaderID], [RecipientName], [RecipientUUID], [PreviousHeaderID], [ValidationCounter], [NextHeaderID], [Timestamp], [BlockNumber], [DataAddress], [ValidationExpiry], [DataHash], [Nonce], [Stored], [GlobalHash]) VALUES (N'0x0100000000000000000000000000000000000000000000000000000000000000', N'Root', N'', N'', N'0x0100000000000000000000000000000000000000000000000000000000000000', N'0x0100000000000000000000000000000000000000000000000000000000000000', N'', N'', N'', N'', N'1', N'', N'1536625353', N'4014541', N'0xb5d5052f9417fc4b52fe06dc2ad82d849b03661ab452a2a81256d49818dcb4ed', N'', N'', N'', 0, N'0xb5d5052f9417fc4b52fe06dc2ad82d849b03661ab452a2a81256d49818dcb4ed')";
                     cmd.ExecuteNonQuery();
                 }
 

@@ -38,7 +38,7 @@
             foreach (var item in Model.HeaderList)
             {
                 <tr id="row_@item.HeaderId">
-                    <td id="id_@item.HeaderId"><a href="@item.HeaderId" class="clip" onclick="return false;">[copy] @item.HeaderIdShortened</a><br /></td>
+                    <td id="id_@item.HeaderId"><a href="@item.HeaderId" class="clip" onclick="return false;">@if (!String.IsNullOrEmpty(item.HeaderIdShortened)) {@Html.Raw("[copy]")} @item.HeaderIdShortened</a><br /></td>
                     <td id="cat_@item.HeaderId">
                         @if (String.IsNullOrEmpty(item.Link))
                         {
@@ -50,7 +50,7 @@
                         }
 
                     </td>
-                    <td id="val_@item.HeaderId"><a href="@item.ValidatorName" class="clip" onclick="return false;">[copy] @item.ValidatorNameShortened</a></td>
+                    <td id="val_@item.HeaderId"><a href="@item.ValidatorName" class="clip" onclick="return false;">@if (!String.IsNullOrEmpty(item.ValidatorNameShortened)){@Html.Raw("[copy]")}@item.ValidatorNameShortened</a></td>
                     <td id="time_@item.HeaderId">@Html.DisplayFor(i => item.Timestamp)</td>
                     <td id="block_@item.HeaderId">
                         <a href="https://ropsten.etherscan.io/block/@item.BlockNumber">@item.BlockNumber</a><br />
@@ -58,17 +58,21 @@
                     <td id="link_@item.HeaderId">
                         <a href="https://ropsten.etherscan.io/tx/@item.DataAddress">@item.DataAddressShortened</a><br />
                     </td>
-                    <td id="hash_@item.HeaderId"><a href="@item.DataHash" class="clip" onclick="return false;">[copy] @item.DataHashShortened</a></td>
+                    <td id="hash_@item.HeaderId"><a href="@item.DataHash" class="clip" onclick="return false;">@if (!String.IsNullOrEmpty(item.DataHashShortened)){@Html.Raw("[copy]")}@item.DataHashShortened</a></td>
                     @if (item.ValidationCounter == "1")
                     {                        
-                        <td><a href="#" class="btn btn-sm" style="box-shadow:none;"><i class="glyphicon glyphicon-certificate"></i></a></td>
+                        <td><a href="@Url.Action("Certificate", new { id = item.HeaderId })" class="btn btn-sm" style="border: 1px solid blue;"><i class="glyphicon glyphicon-certificate"></i></a></td>
                     }
                     else
                     {
                         <td id="cert_@item.HeaderId"><a href="#" class="btn btn-success btn-sm" onclick="validate('@item.HeaderId')"><i class="glyphicon glyphicon-certificate"></i></a></td>
                     }
-                    <td><a href=@Url.Action("EditDoc", new { id = item.HeaderId }) class="btn btn-sm"><i class="glyphicon glyphicon-edit"></i></a></td>
-
+                        <td id="edit_@item.HeaderId">
+                            @if (String.IsNullOrEmpty(item.ValidationCounter))
+                            {
+                                <a href="@Url.Action("EditDoc", new { id = item.HeaderId })" class="btn btn-sm"><i class="glyphicon glyphicon-edit"></i></a>
+                            }
+                        </td>
                 </tr>
             }
         }
@@ -100,10 +104,11 @@
                 data: data,
                 success: function (data) {
                     $('#val_' + data.headerId).html('<a href="' + data.validatorName + '">' + data.validatorNameShortened + '</a>');
-                    $('#cert_' + data.headerId).html('<a href="#" class="btn btn-sm" style="box-shadow:none;"><i class="glyphicon glyphicon-certificate"></i></a>');
+                    $('#cert_' + data.headerId).html('<a href="/Contract/Certificate?id=' + data.headerId + '" class="btn btn-sm"  style="border: 1px solid blue;"><i class="glyphicon glyphicon-certificate"></i></a>');
                     $('#time_' + data.headerId).html(data.timestamp);
                     $('#block_' + data.headerId).html('<a href="https://ropsten.etherscan.io/block/' + data.blockNumber + '">' + data.blockNumber + '</a><br />');
                     $('#link_' + data.headerId).html('<a href="https://ropsten.etherscan.io/tx/' + data.dataAddress + '">' + data.dataAddressShortened + '</a><br />');
+                    $('#edit_' + data.headerId).html('');
                 },
                 error: function () {
                     alert("signing in error");

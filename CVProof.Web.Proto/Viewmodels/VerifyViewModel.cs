@@ -20,5 +20,7 @@ namespace CVProof.Web.Models
         public HeaderModel Header { get; set; }
 
         public VerificationStatus Status { get; set; }
+
+        public string HeaderId { get; set; }
     }
 }

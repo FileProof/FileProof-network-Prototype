@@ -40,6 +40,8 @@ namespace CVProof.Web.Models
             this.DataHash = header.DataHash;
             this.Nonce = Utils.Convert.ToHexString(header.Nonce);
             this.Link = header.Stored ? $"https://s3-eu-west-1.amazonaws.com/cvproof/{header.HeaderId}" : null;
+            this.GlobalHash = header.GlobalHash;
+
             CategoryList = new List<DDLItem>() { new DDLItem() { ID = String.Empty, Desc = String.Empty } };
 
 
@@ -73,11 +75,10 @@ namespace CVProof.Web.Models
         public string DataHashShortened { get { return String.Format("{0}", DataHash.SubStringTo(7)); } }
         public string Nonce { get; set; }
         public string Link { get; set; }
+        public string GlobalHash { get; set; }
 
         public List<DDLItem> CategoryList { get; set; } 
     
-    
-
         public HeaderModel GetHeaderModel()
         {
             HeaderModel ret = new HeaderModel();
@@ -101,6 +102,7 @@ namespace CVProof.Web.Models
             ret.DataHash = this.DataHash;
             ret.Nonce = Utils.Convert.ToBytesString(this.Nonce);
             ret.Stored = !String.IsNullOrEmpty(this.Link);
+            ret.GlobalHash = this.GlobalHash;
 
             return ret;
         }

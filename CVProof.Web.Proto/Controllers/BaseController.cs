@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using System.Net.Http;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
@@ -90,6 +91,8 @@ namespace CVProof.Web.Controllers
                 _user.User = User.Claims.FirstOrDefault(e => e.Type == ClaimTypes.NameIdentifier).Value;
             };
         }
+
+        protected static readonly HttpClient client = new HttpClient();
     }
 
     public class UserManager : IUserMgr

@@ -18,11 +18,22 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Remove="wwwroot\cert.html" />
+    <Content Remove="wwwroot\footer.html" />
+  </ItemGroup>
+
+  <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.Extensions.SecretManager.Tools" Version="2.0.2" />
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.4" />
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="wwwroot\fileproof.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="wwwroot\footer.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="wwwroot\js\jquery-1.8.2.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -36,11 +47,18 @@
     <ProjectReference Include="..\CVProof.DAL.ETH\CVProof.DAL.ETH.csproj" />
     <ProjectReference Include="..\CVProof.DAL.S3\CVProof.DAL.AWS.csproj" />
     <ProjectReference Include="..\CVProof.DAL.SQL\CVProof.DAL.SQL.csproj" />
+    <ProjectReference Include="..\CVProof.Export.PDF\CVProof.Export.PDF.csproj" />
     <ProjectReference Include="..\CVProof.Models\CVProof.Models.csproj" />
     <ProjectReference Include="..\CVProof.Utils\CVProof.Utils.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <Content Update="Views\Contract\Certificate.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="Views\Contract\CertificateMessy.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
     <Content Update="Views\Contract\ShowDocs.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
@@ -50,12 +68,45 @@
     <Content Update="Views\Contract\Validate.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
+    <Content Update="Views\Shared\_LayoutNoPadding.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
     <Content Update="wwwroot\css\site.css">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\images\image1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\images\image2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\images\image3.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\js\bootstrap-filestyle.min.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Update="wwwroot\js\site.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="cert.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="cert20181031.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="footer.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="pcb.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="PROOF_CHECKING_BUTTON-1.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

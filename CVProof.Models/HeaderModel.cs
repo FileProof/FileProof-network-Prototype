@@ -14,6 +14,8 @@ namespace CVProof.Models
             return false;
         }
 
+        private string _nonce = String.Empty;
+
         public string ContainerVersion { get { return "0.1.0"; } }
         public string HeaderId { get; set; }
         public string Category { get; set; }        
@@ -34,11 +36,19 @@ namespace CVProof.Models
         public string DataHash { get; set; }
         public string Nonce { get; set; }
         public bool Stored { get; set; }
+        public string GlobalHash { get; set; }        
     }
 
     public class HashDto
     {
         public string hash { get; set; }
+    }
+
+    public class HtmlDto
+    {
+        public string html { get; set; }
+
+        public string footerPath { get; set; }
     }
 }
 

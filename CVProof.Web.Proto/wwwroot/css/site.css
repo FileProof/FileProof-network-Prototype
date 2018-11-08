@@ -36,8 +36,11 @@
 }
 
 .make-red {
-    background-color: #FFDDDD;
+    background-color: #FF0000;
 }
 .make-green {
     background-color: #DDFFDD;
+}
+.make-blue {
+    background-color: #10AFFF;
 }

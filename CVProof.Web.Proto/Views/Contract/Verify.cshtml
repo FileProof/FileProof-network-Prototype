@@ -3,21 +3,26 @@
 <h2 style="margin-top:20px">Verify data</h2>
 <br />
 
-<div class="container-fluid" style="display: flex">    
-    <div class="col col-md-4" id="verifyFileArea">
+<div class="container-fluid" style="display:flex">
+    <div class="col col-md-5" id="verifyFileArea">
         <form id="verifyFileForm" asp-controller="Contract" asp-action="VerifyFile" method="post" enctype="multipart/form-data">
             <fieldset>
                 <legend>Verify file</legend>
-                <div class="input-group col-md-12">
-                    <label class="btn btn-default btn-file col-md-4">
-                        Browse <input type="file" name="Files" multiple style="display:none;" data-autoupdateform="#verifyFileForm" id="Files" />
-                    </label>
-                </div>                
+
+                <div class="col-md-8" style="padding-left: 0px;margin-bottom:20px;">
+                    <input type="file" multiple name="Files" id="Files" accept=".pdf" class="col-md-8">
+                    <button id="clear" class="btn btn-default btn-xs">
+                        clear selection
+                    </button>
+                </div>
+                <div style="clear:both;">
+                    <input type="button" id="verifyFileBtn" value="Upload Files" class="btn btn-default" data-autoupdateform="#verifyFileForm" />
+                </div>
             </fieldset>
         </form>
     </div>
 
-    <div class="col col-md-4" id="verifyTextArea">
+    <div class="col col-md-5" id="verifyTextArea">
         @using (Html.BeginForm("VerifyText", "Contract", FormMethod.Post, new { id = "verifyTextForm" }))
         {
             <fieldset>
@@ -25,62 +30,19 @@
                 @Html.TextAreaFor(e => e.Text, new { @class = "form-control", @cols = 80, @rows = 10 })
                 <br />
                 <input type="button" id="verifyTextBtn" value="Verify Text" class="btn btn-default" data-autoupdateform="#verifyTextForm" data-cvproof-url="@Url.Action("VerifyText", "Contract")" />
-            </fieldset>                                  
+            </fieldset>
         }
-    </div>
-
-    <div class="col col-md-4">
-        @if (Model.Header != null)
-        {
-            <h3 style="margin:20px 0px 20px 0px">Result header</h3>
-            <div class="row">
-                <div style="display:inline" class="col-md-6">
-                    @Html.LabelFor(e => e.Header.ContainerVersion)
-                </div>
-                <div style="display:inline" class="col-md-6">
-                    @Html.DisplayFor(e => e.Header.ContainerVersion, new { @class = "form-control" })
-                </div>
-            </div>
-            <div class="row">
-                <div style="display:inline" class="col-md-6">
-                    @Html.LabelFor(e => e.Header.DataHash)
-                </div>
-            </div>
-            <div class="row">
-                <div class="class=" col-md-12"">
-                    @Html.DisplayFor(e => e.Header.DataHash, new { @class = "form-control" })
-                </div>
-            </div>
-            @*@Html.LabelFor(e => e.Header.HeaderId, new { @class = "form-control" })
-                @Html.DisplayFor(e => e.Header.HeaderId, new { @class = "form-control" })
-                @Html.DisplayFor(e => e.Header.Category, new { @class = "form-control" })
-                @Html.DisplayFor(e => e.Header.ValidatorName, new { @class = "form-control" })
-                @Html.DisplayFor(e => e.Header.RecipientName, new { @class = "form-control" })
-                @Html.DisplayFor(e => e.Header.ValidatorUuid, new { @class = "form-control" })
-                @Html.DisplayFor(e => e.Header.RecipientUuid, new { @class = "form-control" })
-                @Html.DisplayFor(e => e.Header.PreviousHeaderId, new { @class = "form-control" })
-                @Html.DisplayFor(e => e.Header.RecipientUuid, new { @class = "form-control" })
-                @Html.DisplayFor(e => e.Header.NextHeaderId, new { @class = "form-control" })
-                @Html.DisplayFor(e => e.Header.RecipientUuid, new { @class = "form-control" })
-                @Html.DisplayFor(e => e.Header.Timestamp, new { @class = "form-control" })
-                @Html.DisplayFor(e => e.Header.RecipientUuid, new { @class = "form-control" })
-                @Html.DisplayFor(e => e.Header.BlockNumber, new { @class = "form-control" })
-                @Html.DisplayFor(e => e.Header.DataAddress, new { @class = "form-control" })
-                @Html.DisplayFor(e => e.Header.ValidationExpiry, new { @class = "form-control" })
-                @Html.DisplayFor(e => e.Header.DataHash, new { @class = "form-control" })
-                @Html.DisplayFor(e => e.Header.Nonce, new { @class = "form-control" })*@
-        }
-    </div>
     </div>
 </div>
 @section Scripts {
+    <script type="text/javascript" src="~/js/bootstrap-filestyle.min.js"></script>
     <script type="text/javascript">
 
         var updateTextStatus = function (btn, data) {
-            var textarea = $('#verifyTextArea');            
+            var textarea = $('#verifyTextArea');
             if (data) { textarea.addClass('make-green'); } else { textarea.addClass('make-red'); }
         };
-        
+
         var updateFileStatus = function (btn, data) {
             var filearea = $('#verifyFileArea');
             if (data) { filearea.addClass('make-green'); } else { filearea.addClass('make-red'); }
@@ -116,9 +78,22 @@
             $form.on('submit', null, { callback: updateFileStatus, input: $input }, ajaxFormSubmit);
             $form.trigger('submit');
             $form.off('submit', null, ajaxFormSubmit);
+
+            $('#Files').filestyle('clear');
         };
-        
-        $('#Files').change(ajaxFileUpdate);
+
+        $('#verifyFileBtn').click(ajaxFileUpdate);
         $('#verifyTextBtn').click(ajaxTextUpdate);
-</script>
+
+        $('#Files').filestyle({
+            btnClass: 'btn-default',
+            text: "Choose file",
+            placeholder: "No file"
+        });
+
+        $('#clear').click(function (e) {
+            e.preventDefault();
+            $('#Files').filestyle('clear');
+        });
+    </script>
 }
