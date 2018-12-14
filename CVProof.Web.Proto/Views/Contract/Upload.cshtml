@@ -1,8 +1,8 @@
 ﻿@using CVProof.Utils;
 @model CVProof.Web.Models.CertificateViewModel;
-@{ Layout = "~/Views/Shared/_Layout.cshtml"; }
+@{ Layout = "~/Views/Shared/_LayoutNoPadding.cshtml"; }
 
-<div class="col-md-12" style="text-align:center;padding-top:15px;padding-left:0px;width:100%;margin-bottom:270px;">    
+<div class="col-md-12" style="text-align:center;padding-top:15px;padding-left:0px;width:100%">    
     <div style="display:inline-block;border:2px solid black; background-color:#eeeeee; padding:10px; width:200px; height:200px;">
         <form id="verifyFileForm" asp-controller="Contract" asp-action="CertificateUpdate" method="post" enctype="multipart/form-data">
             @Html.HiddenFor(e => e.HeaderId)

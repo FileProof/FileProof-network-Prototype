@@ -17,55 +17,13 @@ namespace CVProof.Export.PDF
             DirectoryInfo dirInfo = new DirectoryInfo(Directory.GetCurrentDirectory());
             FileInfo[] fileInfos = dirInfo.GetFiles("?.pdf");
             ArrayList list = new ArrayList();
+
             foreach (FileInfo info in fileInfos)
             {
                 list.Add(info.FullName);
             }
+
             return (string[])list.ToArray(typeof(string));
-            //DirectoryInfo dirInfo = new DirectoryInfo(Directory.GetCurrentDirectory());
-            //FileInfo[] fileInfos = dirInfo.GetFiles("*.pdf");
-        }
-
-        /// <summary>
-        /// Imports all pages from a list of documents.
-        /// </summary>
-        public static void Variant1()
-        {
-            // Get some file names
-            string[] files = GetFiles();
-
-            // Open the output document
-            PdfDocument outputDocument = new PdfDocument();
-
-            // Iterate files
-            foreach (string file in files)
-            {
-                // Open the document to import pages from it.
-                PdfDocument inputDocument = PdfReader.Open(file, PdfDocumentOpenMode.Import);
-
-                // Iterate pages
-                int count = inputDocument.PageCount;
-                for (int idx = 0; idx < count; idx++)
-                {
-                    // Get the page from the external document...
-                    PdfPage page = inputDocument.Pages[idx];
-                    // ...and add it to the output document.
-                    outputDocument.AddPage(page);
-                }
-            }
-
-            // Save the document...
-            string filename = "SimpleConcat.pdf";
-            outputDocument.Save(filename);
-            // ...and start a viewer.
-            var p = new Process();
-
-            p.StartInfo = new ProcessStartInfo(Path.Combine(Directory.GetCurrentDirectory(), filename))
-            {
-                UseShellExecute = true
-            };
-
-            p.Start();
         }
 
         public static byte[] DoConcat(byte[] file1, byte[] file2)

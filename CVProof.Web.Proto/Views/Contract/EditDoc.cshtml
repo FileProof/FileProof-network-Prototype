@@ -11,6 +11,7 @@
             @Html.HiddenFor(e => e.BlockNumber)
             @Html.HiddenFor(e => e.DataAddress)
             @Html.HiddenFor(e => e.Link)
+            @Html.HiddenFor(e => e.Attachment)
 
 
             <div class="row">
@@ -163,11 +164,24 @@
                     <div class="row" style="margin-top:10px;">
                         <div class="col-md-2" style="display:inline">
                             Link:
-                        </div>
+                        </div>                        
                         <div class="col-md-9" style="display:inline">
-                            @Html.DisplayFor(e => e.Link, new { htmlAttributes = new { style = "width:510px" } })
+                            @if (!String.IsNullOrEmpty(Model.Link))
+                            {<a href="@Html.Raw($"{Model.StorageBaseUrl}/{Model.StorageBucket}/{Model.Link}")">Download</a> }
+                        else { @Html.Raw("None")}
                         </div>
                     </div>
+                    <div class="row" style="margin-top:10px;">
+                        <div class="col-md-2" style="display:inline">
+                            Attachment:
+                        </div>
+                        <div class="col-md-9" style="display:inline">
+                            @if (Model.HasAttachment)
+                            {<a href="@Html.Raw($"{Model.StorageBaseUrl}/{Model.StorageBucket}/{Model.Attachment}")">Download</a> }
+                            else
+                            { @Html.Raw("None")}
+                        </div>
+                    </div>                    
                 </fieldset>
             </div>
             <div class="row" style="margin-top:30px;">
@@ -195,7 +209,7 @@
                         </div>
                         <div class="col-md-9" style="display:inline">
                             <a href="https://ropsten.etherscan.io/tx/@Model.DataAddress">@Html.DisplayFor(e => e.DataAddress, new { htmlAttributes = new { style = "width:510px" } })</a>
-</div>
+                        </div>
                     </div>
                 </fieldset>
             </div>

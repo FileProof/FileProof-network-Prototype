@@ -49,9 +49,10 @@ function login() {
         processData: false,               
         data: data,
         success: function (data){
-            if (data.msg.length > 0) {
-                $('#curUser').val(data.msg);
-                $('#curUserNameLink').text(data.msg.substr(0,7) + '...');
+            if (data.id.length > 0) {
+                $('#curUser').val(data.id);
+                $('#curUserNameLink').text(data.id.substr(0, 7) + '...');
+                $('#curRoles').val(data.roles.join(','));
                 updatecontrols();
             }
         },
@@ -63,12 +64,14 @@ function login() {
 
 
 
-function updatecontrols() {
-    if ($('#curUser').val().length > 0) {
+function updatecontrols() {  
+    var curUser = $('#curUser');
 
+    if (curUser.val()) {
+
+        $("#signInBtn").hide();
         $("#signInBtn").removeClass('show');
         $("#signInBtn").addClass('hide');
-        $("#signInBtn").hide();
 
         $("#loginInput").hide();
         $("#loginInput").addClass('hide');
@@ -78,11 +81,21 @@ function updatecontrols() {
         $("#curUserName").addClass('show');
         $("#curUserName").removeClass('hide');
 
+        $("#signOutBtn").show();
+        $("#signOutBtn").removeClass('hide');
+        $("#signOutBtn").addClass('show');            
+
+        $("#validate").show();
+        $("#validate").addClass('show');
+        $("#validate").removeClass('hide');
+
         $("#docs").show();
         $("#docs").addClass('show');
         $("#docs").removeClass('hide');
-        
-        if ($("#curUser").val() == "0x0100000000000000000000000000000000000000000000000000000000000000") {
+
+        var roles = $('#curRoles').val().split(',');
+
+        if (roles.includes('Admin')) {
             $("#reset").show();
             $("#reset").addClass('show');
             $("#reset").removeClass('hide');
@@ -92,10 +105,6 @@ function updatecontrols() {
             $("#reset").addClass('hide');
             $("#reset").removeClass('show');
         }
-
-        $("#signOutBtn").removeClass('hide');
-        $("#signOutBtn").addClass('show');
-        $("#signOutBtn").show();
     } else {
         $("#signInBtn").removeClass('hide');
         $("#signInBtn").addClass('show');
@@ -108,11 +117,14 @@ function updatecontrols() {
         $("#curUserName").hide();
         $("#curUserName").addClass('hide');
         $("#curUserName").removeClass('show');
-        //$("#curUserNameLink").text('');
 
         $("#docs").hide();
         $("#docs").addClass('hide');
         $("#docs").removeClass('show');
+
+        $("#validate").hide();
+        $("#validate").addClass('hide');
+        $("#validate").removeClass('show');
 
         $("#reset").hide();
         $("#reset").addClass('hide');
@@ -135,61 +147,8 @@ function logout(url) {
     }).done(function (data) {
         $('#curUser').val('');
         updatecontrols();
-        if (url.length > 0) {
+        if (url) {
             window.location.replace(url);
         }
         });        
 }
-
-function restart() {
-    $.ajax({
-        type: "POST",
-        url: "/Contract/DeleteAll/",
-        processData: false
-    });
-
-    logout("/Contract/Validate/");
-}
-
-
-//var ajaxFormSubmit = function (e) {
-//    var $form = $(this);
-
-//    var data = $form.serialize();
-//    var options = {
-//        url: $form.attr("action"),
-//        type: $form.attr("method"),
-//        data: data
-//    };
-
-//    $.ajax(options)
-//        .done(function (data) {
-//            var targerId = $form.attr("data-target");
-//            if (targerId != undefined) {
-//                var $target = $(targerId);
-//                $target.replaceWith(data);
-//            }
-//            if (e.data) {
-//                var o = e.data;
-//                if (o.callback && (typeof o.callback == 'function')) {
-//                    var func = o.callback;
-//                    var input = o.input;
-//                    func(input);
-//                }
-//            }
-//        })
-//        .fail(function (data) {
-//            var message = '';
-//            var response = JSON.parse(data.responseText);
-//            if (response && response.errorMessage !== undefined) {
-//                message = response.errorMessage;
-//            }
-//            new PNotify({
-//                type: 'error',
-//                title: 'Error on AJAX form submit',
-//                text: message
-//            });
-//        });
-
-//    return false;
-//};

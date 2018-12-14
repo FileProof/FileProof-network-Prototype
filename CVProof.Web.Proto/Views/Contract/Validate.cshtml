@@ -4,8 +4,8 @@
 <br />
 
 <div class="container-fluid">
-    <div class="col-md-5">
-        <form id="validateFileForm" asp-controller="Contract" asp-action="SaveFile" method="post" enctype="multipart/form-data">
+    <form id="validateFileForm" name="validateFileForm" asp-controller="Contract" asp-action="SaveFile" method="post" enctype="multipart/form-data">
+        <div class="col-md-5">
             <fieldset>
                 <legend>Upload files</legend>
                 <div class="input-group col-md-8" style="margin-bottom:20px">
@@ -25,36 +25,33 @@
                     </label>
                 </div>
 
-
-                <div class="col-md-8" style="padding-left: 0px;margin-bottom:20px;">
-                    <input type="file" name="Files" multiple  accept=".pdf" id="Files" class="col-md-8">
-                    <button id="clear" class="btn btn-default btn-xs">
-                        clear selection
-                    </button>
-                </div>
-                <div style="clear:both;">
-                <input type="button" id="validateFileBtn" value="Upload Files" class="btn btn-default" data-autoupdateform="#validateFileForm" />
-                </div>
-
             </fieldset>
-        </form>
-    </div>
+        </div>
+        <div class="col-md-5">
+            <div class="col-md-8" style="padding-left: 0px;margin-bottom:40px;">
+                <fieldset>
+                    <legend>Data file</legend>
+                </fieldset>
+                <input type="file" name="Files" multiple accept=".pdf" id="Files" class="col-md-8">
+                <button id="clearFiles" class="btn btn-default btn-xs">
+                    clear selection
+                </button>
+            </div>
+            <div class="col-md-8" style="padding-left: 0px;margin-bottom:20px;">
+                <fieldset>
+                    <legend>Attachment</legend>
+                </fieldset>
+                <input type="file" name="Attachment" multiple accept=".pdf" id="Attachment" class="col-md-8">
+                <button id="clearAttachment" class="btn btn-default btn-xs">
+                    clear selection
+                </button>
+            </div>
+            <div class="col-md-8" style="clear:both;float:right;">
+                <button id="validateFileBtn" class="btn btn-default" data-autoupdateform="#validateFileForm">Upload Files  </button>
+            </div>
+        </div>
 
-    <div class="col-md-5">
-        @using (Html.BeginForm("SaveText", "Contract", FormMethod.Post, new { id = "validateTextForm" }))
-        {
-            <fieldset>
-                <legend>Paste plain text</legend>
-                <div class="input-group col-md-8" style="margin-bottom:20px">
-                    <label class="control-label">Validator (optional):</label><input class="form-control" type="text" name="Validator" />
-                </div>
-                @Html.TextAreaFor(e => e.Text, new { @class = "form-control", @cols = 80, @rows = 10 })
-                <br />
-                <input type="button" id="validateTextBtn" value="Upload Text" class="btn btn-default" data-autoupdateform="#validateTextForm" />
-
-            </fieldset>
-        }
-    </div>
+    </form>
 </div>  
 @section Scripts {
     <script type="text/javascript" src="~/js/bootstrap-filestyle.min.js"></script>
@@ -62,22 +59,12 @@
 
         var updateForm = function (btn, data) {
             btn.closest('form').get(0).reset();
-            btn.stopPropagation();
-            btn.preventDefault();
-        };
-
-        var ajaxTextUpdate = function (e) {
-            e.preventDefault();
-            var $input = $(this);
-            var formId = $input.attr('data-autoupdateform');
-            var $form = $(formId);
-
-            $form.on('submit', null, { callback: updateForm, input: $input }, ajaxFormSubmit);
-            $form.trigger('submit');
-            $form.off('submit', null, ajaxFormSubmit);
+            $('#delSpinner').remove();
         };
 
         var ajaxFileUpdate = function (e) {
+            $(this).append($("<i id='delSpinner' class='fa fa-spinner fa-spin'></i>")).button();
+
             e.preventDefault();
             var $input = $(this);
             var formId = $input.attr('data-autoupdateform');
@@ -88,10 +75,10 @@
             $form.off('submit', null, ajaxFormSubmit);
 
             $('#Files').filestyle('clear');
+            $('#Attachment').filestyle('clear');
         };
 
-        $('#validateFileBtn').click(ajaxFileUpdate);
-        $('#validateTextBtn').click(ajaxTextUpdate);
+        $('#validateFileBtn').click(ajaxFileUpdate);        
 
         $('#Files').filestyle({
             btnClass: 'btn-default',
@@ -100,9 +87,22 @@
             placeholder: "No file" 
         });
 
-        $('#clear').click(function (e) {
+        $('#Attachment').filestyle({
+            btnClass: 'btn-default',
+            text: "Choose file",
+            badge: true,
+            placeholder: "No file"
+        });
+
+        $('#clearFiles').click(function (e) {
             e.preventDefault();
             $('#Files').filestyle('clear');
         });
+
+        $('#clearAttachment').click(function (e) {
+            e.preventDefault();
+            $('#clearAttachment').filestyle('clear');
+        });
+
     </script>
 }

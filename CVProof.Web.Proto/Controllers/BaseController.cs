@@ -1,39 +1,29 @@
-﻿using Microsoft.AspNetCore.Authentication;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using System.IdentityModel.Tokens.Jwt;
-using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
+using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 using System.Net.Http;
 
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.Extensions.Configuration;
-
-using System.ComponentModel.DataAnnotations;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using System.Linq;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 
-using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
+
 using CVProof.DAL.SQL;
 using CVProof.Models;
-using Microsoft.AspNetCore.Mvc.Filters;
+
 
 namespace CVProof.Web.Controllers
 {
@@ -89,6 +79,7 @@ namespace CVProof.Web.Controllers
             {
                 _user.IsAuthenticated = true;
                 _user.User = User.Claims.FirstOrDefault(e => e.Type == ClaimTypes.NameIdentifier).Value;
+                _user.Roles = String.Join(',', User.Claims.Where(e => e.Type == ClaimTypes.Role).Select(e => e.Value));
             };
         }
 
@@ -99,7 +90,17 @@ namespace CVProof.Web.Controllers
     {
         public string User { get; set; }
 
+        public string Roles { get; set; }
+
         public bool IsAuthenticated { get; set; }
+
+        public bool isAdmin { get { return User == "0x0100000000000000000000000000000000000000000000000000000000000000"; } }
+
+        public bool HasRole(string role)
+        {
+            return Roles.Split(',').Where(e => String.Compare(e,role) == 0).Any();
+        }
+
 
         public Task<bool> LoginAsync(string hash)
         {
@@ -133,11 +134,4 @@ namespace CVProof.Web.Controllers
             await _next.Invoke(context);
         }
     }
-
-
-    public class AccessToken
-    {
-        public string authtoken { get; set; }
-    }
-
 }

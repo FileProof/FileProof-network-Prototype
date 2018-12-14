@@ -1,0 +1,97 @@
+﻿@model CVProof.Web.Models.UserProfileViewModel;
+@{
+    ViewBag.Title = "Profile";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2 style="margin-top:20px">Profile</h2>
+<br />
+
+<div class="container-fluid">
+    <form id="profileForm" name="profileForm" asp-controller="Profile" asp-action="SaveProfile" method="post" enctype="multipart/form-data">
+        <div class="row">
+            @Html.HiddenFor(e => e.Id)
+            <div class="label" name="Id">Id: @Model.Id</div>
+        </div>
+        <div class="row" style="margin-top:10px;">
+            <div class="col-md-4" style="display:inline-block;">
+                <fieldset>
+                    <legend>General:</legend>
+                    <div class="row" style="margin-top:10px;">
+                        <div class="col-md-2" style="display:inline">
+                            Name:
+                        </div>
+                        <div class="col-md-9" style="display:inline">
+                            @Html.EditorFor(e => e.Name, new { htmlAttributes = new { style = "width:200px" } })
+                        </div>
+                    </div>
+                </fieldset>
+                <fieldset style="margin-top:50px;">
+                    <legend>Roles:</legend>
+                    <div class="col-md-4">
+                        <select multiple="multiple" class="multi-select" style="width:100px" id="my_multi_select1" asp-for="@Model.Roles" asp-items="@Model.RolesList"></select>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="col-md-4" style="display:inline-block;">
+                <fieldset>
+                    <legend>Image:</legend>
+                    <div style="display:inline-block;width:200px">
+                        <div style="padding-left: 0px;margin-bottom:40px;">
+                            <input type="file" name="Files" id="Files" class="col-md-8">
+                            <button id="clearFiles" class="btn btn-default btn-xs">
+                                clear selection
+                            </button>
+                        </div>
+                    </div>
+                    <div style="display:inline-block;padding-left:25px;">
+                        @if (Model.Image != null)
+                        {<img src="@String.Format("data:image/gif;base64,{0}", Convert.ToBase64String(Model.Image))" style="max-height:100%;max-width:100%" />}
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+        <div style="clear:both;margin-top:50px">
+            <input type="submit" id="saveProfileBtn" value="Save profile" class="btn btn-default" data-autoupdateform="#profileForm" />
+        </div>
+    </form>
+
+</div>
+
+@section Scripts {
+    <script type="text/javascript" src="~/js/bootstrap-filestyle.min.js"></script>
+    <script type="text/javascript">
+        var updateForm = function (btn, data) {
+            btn.closest('form').get(0).reset();
+            btn.stopPropagation();
+            btn.preventDefault();
+        };
+
+        var ajaxFileUpdate = function (e) {
+            e.preventDefault();
+            var $input = $(this);
+            var formId = $input.attr('data-autoupdateform');
+            var $form = $(formId);
+
+            $form.on('submit', null, { callback: updateForm, input: $input }, ajaxFormSubmit);
+            $form.trigger('submit');
+            $form.off('submit', null, ajaxFormSubmit);
+
+            $('#Files').filestyle('clear');
+        };
+
+        //$('#saveProfileBtn').click(ajaxFileUpdate);
+
+        $('#Files').filestyle({
+            btnClass: 'btn-default',
+            text: "Choose file",
+            badge: true,
+            placeholder: "No file"
+        });
+
+        $('#clearFiles').click(function (e) {
+            e.preventDefault();
+            $('#Files').filestyle('clear');
+        });
+    </script>
+}

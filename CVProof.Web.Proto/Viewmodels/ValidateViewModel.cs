@@ -11,7 +11,14 @@ namespace CVProof.Web.Models
 {
     public class ValidateViewModel
     {
+
+        public ValidateViewModel()
+        {
+            StoreFile = true;
+        }
+
         public List<IFormFile> Files { get; set; }
+        public IFormFile Attachment { get; set; }
         public string Text { get; set; }
 
         public bool StoreFile { get; set; }

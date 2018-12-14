@@ -36,103 +36,148 @@ namespace CVProof.Web.Controllers
     {
         public ContractController(IConfiguration configuration, IUserMgr user) : base(configuration, user){}
 
+        [AllowAnonymous]
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        [Authorize]
         public IActionResult Validate()
         {
-            ValidateViewModel model = new ValidateViewModel();
+            if (_user.IsAuthenticated) { ViewBag.User = _user.User; ViewBag.Roles = _user.Roles; }
 
-            if (_user.IsAuthenticated) { ViewBag.User = _user.User; }
+            ValidateViewModel model = new ValidateViewModel();
+            
             ViewData["Title"] = "Validate";
 
             return View(model);
         }
-        
-        [HttpPost]
-        public async Task SaveText(ValidateViewModel model)
-        {
-            HeaderModel header = new HeaderModel();            
-            header.Init();
-            header.ValidatorUuid = model.Validator;
-            header.ValidatorName = model.Validator;
-            header.Category = Category.Text.ToString();
 
-            if (!String.IsNullOrEmpty(model.Text))
-            {
-                using (System.Security.Cryptography.HashAlgorithm sha256 = System.Security.Cryptography.SHA256.Create())
-                {                  
-                    header.DataHash = Utils.Convert.ToHexString(sha256.ComputeHash(System.Text.Encoding.UTF8.GetBytes(model.Text)));
-                }
-
-                header.HeaderId = Utils.Convert.ToHexString(header.GetFullHashBytes());
-
-                SQLData.InsertHeader(header);
-            }            
-        }
-
-
+        [Authorize]
         [HttpPost]
         public async Task SaveFile(ValidateViewModel model)
         {           
             HeaderModel header = new HeaderModel();
-            //header.ValidatorUuid = model.Validator;
-            header.ValidatorName = model.Validator;
-            header.IssuerName = model.Validator;
+            
+            header.IssuerUuid = _user.User;
+            header.IssuerName = SQLData.GetProfileById(_user.User).Name;
+            
+            if (String.IsNullOrEmpty(model.Validator))
+            {
+                header.ValidatorUuid = header.IssuerUuid;
+                header.ValidatorName = header.IssuerName;
+            }
+            else
+            {
+                header.ValidatorName = model.Validator;              
+            }
+
             header.Category = Category.File.ToString();
             header.Stored = model.StoreFile;            
 
             try
             {
-                foreach (var file in model.Files)
+                var file = model.Files[0];
+                var attachment = model.Attachment;
+                
+                header.Init();
+                header.HeaderId = Utils.Convert.ToHexString(header.GetSimpleHashBytes());
+
+                if (file != null && file.Length > 0)
                 {
-                    header.Init();
-                    header.HeaderId = Utils.Convert.ToHexString(header.GetSimpleHashBytes());
+                    byte[] sourceFile;                      
 
-                    if (file != null && file.Length > 0)
+                    using (MemoryStream stream = new MemoryStream())
                     {
-                        byte[] sourceFile;                        
-
-                        using (MemoryStream stream = new MemoryStream())
-                        {
-                            await file.CopyToAsync(stream);
-                            sourceFile = stream.ToArray();
-                        }
-
-                        if (model.StoreFile)
-                        {
-                            byte[] stampedFile;
-
-                            try
-                            {                                    
-                                stampedFile = await GetPDF(sourceFile, header.HeaderId);
-                            }
-                            catch(Exception e)
-                            {
-                                stampedFile = sourceFile;
-                            }
-
-                            using (System.Security.Cryptography.HashAlgorithm sha256 = System.Security.Cryptography.SHA256.Create())
-                            {
-                                header.DataHash = Utils.Convert.ToHexString(sha256.ComputeHash(stampedFile));
-                            }
-
-                            using (MemoryStream stream = new MemoryStream(stampedFile))
-                            {                                                                        
-                                await S3.WriteObject(stream, "cvproof", header.HeaderId, file.ContentType);
-                            }
-
-                        }
-                        else
-                        {
-                            using (System.Security.Cryptography.HashAlgorithm sha256 = System.Security.Cryptography.SHA256.Create())
-                            {
-                                header.DataHash = Utils.Convert.ToHexString(sha256.ComputeHash(sourceFile));
-                            }                                
-                        }                        
-
-                        header.GlobalHash = Utils.Convert.ToHexString(header.GetFullHashBytes());
-
-                        SQLData.InsertHeader(header);                      
+                        await file.CopyToAsync(stream);
+                        sourceFile = stream.ToArray();
                     }
-                }
+
+                    if (model.StoreFile)
+                    {
+                        #region stamping
+
+                        byte[] stampedFile;
+
+                        try
+                        {                                    
+                            stampedFile = await GetPDF(sourceFile, header.HeaderId);
+                        }
+                        catch(Exception e)
+                        {
+                            stampedFile = sourceFile;
+                        }
+
+                        #endregion
+
+                        #region hash
+                        using (System.Security.Cryptography.HashAlgorithm sha256 = System.Security.Cryptography.SHA256.Create())
+                        {
+                            header.DataHash = Utils.Convert.ToHexString(sha256.ComputeHash(stampedFile));
+                        }
+                        #endregion
+
+                        #region store
+                        using (MemoryStream stream = new MemoryStream(stampedFile))
+                        {
+                            S3.Init(_configuration["accessKey"], _configuration["secretKey"], _configuration["storageBucket"]);
+  
+                            await S3.WriteObject(stream, header.HeaderId, file.ContentType);
+                        }
+                        #endregion
+
+                        if (model.Attachment != null)
+                        {
+                            byte[] attachmentFile;
+
+                            using (MemoryStream stream = new MemoryStream())
+                            {
+                                await attachment.CopyToAsync(stream);
+                                attachmentFile = stream.ToArray();
+                            }
+
+                            #region init
+                            HeaderModel attachmentHeader = new HeaderModel();
+                            attachmentHeader.Init();
+                            attachmentHeader.HeaderId = Utils.Convert.ToHexString(attachmentHeader.GetSimpleHashBytes());
+                            attachmentHeader.ValidatorName = model.Validator;
+                            attachmentHeader.IssuerName = model.Validator;
+                            attachmentHeader.IssuerUuid = _user.User;
+                            attachmentHeader.Category = Category.Attachment.ToString();                            
+                            attachmentHeader.Stored = true;
+                            #endregion
+
+                            #region hash
+                            using (System.Security.Cryptography.HashAlgorithm sha256 = System.Security.Cryptography.SHA256.Create())
+                            {
+                                attachmentHeader.DataHash = Utils.Convert.ToHexString(sha256.ComputeHash(attachmentFile));
+                            }
+                            #endregion
+
+                            #region store
+                            using (MemoryStream stream = new MemoryStream(attachmentFile))
+                            {
+                                await S3.WriteObject(stream, attachmentHeader.HeaderId, attachment.ContentType);
+                            }
+                            #endregion
+
+                            header.Attachment = attachmentHeader.HeaderId;
+                            SQLData.InsertHeader(attachmentHeader);
+                        }
+                    }
+                    else
+                    {
+                        using (System.Security.Cryptography.HashAlgorithm sha256 = System.Security.Cryptography.SHA256.Create())
+                        {
+                            header.DataHash = Utils.Convert.ToHexString(sha256.ComputeHash(sourceFile));
+                        }                                
+                    }                        
+
+                    header.GlobalHash = Utils.Convert.ToHexString(header.GetFullHashBytes());
+
+                    SQLData.InsertHeader(header);                    
+                }                
             }
 
             catch (Exception e)
@@ -144,104 +189,72 @@ namespace CVProof.Web.Controllers
         [HttpPost]
         public async Task<HeaderViewModel> Validate([FromBody] HashDto dto)
         {
-            HeaderModel header = SQLData.GetHeaderById(dto.hash);
+            if (_user.IsAuthenticated) { ViewBag.User = _user.User; ViewBag.Roles = _user.Roles; }
 
-            header.ValidatorUuid = _user.User;
+            HeaderModel header = SQLData.GetHeaderById(dto.hash);
+            
+            UserProfileModel validatorProfile = SQLData.GetProfileById(_user.User);
+
+            header.ValidatorUuid = validatorProfile.Id;
+            header.ValidatorName = validatorProfile.Name;
+
             if (String.IsNullOrEmpty(header.ValidatorLegitimationId) || String.IsNullOrEmpty(header.IssuerUuid))
-            {
-                header.IssuerUuid = _user.User;
+            {                
+                header.IssuerUuid = validatorProfile.Id;
+                header.IssuerName = validatorProfile.Name;
             }
 
             header.ValidationCounter = "1";
 
-            Ethereum eth = new Ethereum();
+            string contractAddress = _configuration["ethContractAddress"];
+            string abi = _configuration["ethAbi"];
+            string senderAddress = _configuration["ethSenderAddress"];
+            string senderPrimaryKey = _configuration["ethSenderPK"];
+
+            string ethNode = _configuration["ethNode"];
+
+            Ethereum eth = new Ethereum(contractAddress,abi,senderAddress,senderPrimaryKey,ethNode);
 
             header = await eth.SendToNetwork(header);
 
             SQLData.UpdateHeader(header);
 
-            return new HeaderViewModel(header);            
+            header = SQLData.GetHeaderWithImageById(header.HeaderId);
+
+            return new HeaderViewModel(header, _configuration);            
         }
 
+        [Authorize]
         [HttpPost]
-        public void DeleteAll()
+        public async Task<bool> DeleteDoc(string id)
         {
-            SQLData.DeleteAll();
+            HeaderModel header = SQLData.GetHeaderById(id);
+
+            if (header != null)
+            {
+                if (String.IsNullOrEmpty(header.Attachment))
+                {
+                    SQLData.DeleteDoc(header.Attachment);
+                    S3.DeleteObject(header.Attachment);                
+                }
+
+                SQLData.DeleteDoc(id);
+                S3.DeleteObject(id);
+            }
+
+            return true;
         }
 
-        public async Task<IActionResult> Verify(VerifyViewModel model = null)
+        [AllowAnonymous]
+        public async Task<IActionResult> Verify(CertificateViewModel model = null)
         {
-            if (_user.IsAuthenticated) { ViewBag.User = _user.User; }
+            if (_user.IsAuthenticated) { ViewBag.User = _user.User; ViewBag.Roles = _user.Roles; }
             ViewData["Title"] = "Verify";
 
-            return View(model ?? new VerifyViewModel());
+            return View(model ?? new CertificateViewModel());
         }
 
-        [HttpPost]
-        public async Task<bool> VerifyText(VerifyViewModel model)
-        {
-            byte[] datahash;
-
-            HeaderModel header = new HeaderModel();     
-            
-            if (!String.IsNullOrEmpty(model.Text))
-            {
-                using (System.Security.Cryptography.HashAlgorithm sha256 = System.Security.Cryptography.SHA256.Create())
-                {
-                    datahash = sha256.ComputeHash(System.Text.Encoding.UTF8.GetBytes(model.Text));
-                }
-
-                var datahashString = Utils.Convert.ToHexString(datahash);//System.Text.Encoding.UTF8.GetString(datahash);
-
-                model.Status = SQLData.GetHeaderByData(datahashString) != null ? VerificationStatus.True : VerificationStatus.False;               
-            }
-
-
-            return model.Status == VerificationStatus.True;
-        }
-
-
-        [HttpPost]
-        public async Task<bool> VerifyFile(VerifyViewModel model)
-        {
-            byte[] datahash;
-
-            try
-            {
-                foreach (var file in model.Files)
-                {
-                    datahash = null;
-
-                    if (file != null && file.Length > 0)
-                    {
-                        using (var stream = file.OpenReadStream())
-                        {                       
-                            using (System.Security.Cryptography.HashAlgorithm sha256 = System.Security.Cryptography.SHA256.Create())
-                            {
-                                datahash = sha256.ComputeHash(stream);
-                            }
-                        }
-
-                        var datahashString = Utils.Convert.ToHexString(datahash);
-                       
-                        model.Status = SQLData.GetHeaderByData(datahashString) != null ? VerificationStatus.True : VerificationStatus.False;
-                    }
-                }
-            }
-
-            catch (FileNotFoundException e)
-            {
-                return model.Status == VerificationStatus.None;
-            }
-
-            catch (IOException e)
-            {
-                return model.Status == VerificationStatus.None;
-            }
-
-            return model.Status == VerificationStatus.True;
-        }
-
+        [AllowAnonymous]
         [HttpPost]
         public async Task<bool> VerifyCertificateFile(VerifyViewModel model)
         {
@@ -281,14 +294,19 @@ namespace CVProof.Web.Controllers
             return ret;
         }
 
-
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize]
         public IActionResult ShowDocs(HeaderListFilters filters = null)
         {
-            if (_user.IsAuthenticated) { ViewBag.User = _user.User; }
+            if (_user.IsAuthenticated) { ViewBag.User = _user.User; ViewBag.Roles = _user.Roles; }
+
             ViewData["Title"] = "Documents";
 
-            IEnumerable<HeaderModel> hdrList = SQLData.GetHeaders();
+            IEnumerable<HeaderModel> hdrList = null;            
+
+            if (_user.HasRole("Admin"))
+                hdrList = SQLData.GetHeadersWithImages();
+            else
+                hdrList = SQLData.GetHeadersWithImagesByIssuer(_user.User);
 
             if (filters != null)
             {
@@ -296,28 +314,29 @@ namespace CVProof.Web.Controllers
                 if (!string.IsNullOrEmpty(filters.ValidatorId)) { hdrList = hdrList.Where(e => String.Compare(e.ValidatorUuid, filters.ValidatorId) == 0); }
             }
 
-            return View(new HeaderListViewModel(hdrList));
+            return View(new HeaderListViewModel(hdrList, _configuration));
         }
-
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public IActionResult EditDoc(string id)
+        
+        [Authorize]
+        public async Task<IActionResult> EditDoc(string id)
         {
-            if (_user.IsAuthenticated) { ViewBag.User = _user.User; }
-            ViewData["Title"] = "Documents";
+            if (_user.IsAuthenticated) { ViewBag.User = _user.User; ViewBag.Roles = _user.Roles; }
+
+            ViewData["Title"] = "Edit Header";
 
             HeaderModel header = SQLData.GetHeaderById(id);
 
             if (!String.IsNullOrEmpty(header.ValidationCounter))
                 return RedirectToAction("ShowDocs");
 
-            return View(new HeaderViewModel(header));
+            return View(new HeaderViewModel(header, _configuration));
         }
 
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize]
         [HttpPost]
-        public IActionResult SaveDoc(HeaderViewModel model)
+        public async Task<IActionResult> SaveDoc(HeaderViewModel model)
         {
-            if (_user.IsAuthenticated) { ViewBag.User = _user.User; }
+            if (_user.IsAuthenticated) { ViewBag.User = _user.User; ViewBag.Roles = _user.Roles; }
             ViewData["Title"] = "Documents";
 
             if (!String.IsNullOrEmpty(model.ValidationCounter))
@@ -329,56 +348,112 @@ namespace CVProof.Web.Controllers
         }
 
         [AllowAnonymous]
-        public IActionResult Error()
+        public async Task<IActionResult> Certificate(string id)
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
-
-        public ActionResult Certificate(string id)
-        {
-            if (_user.IsAuthenticated) { ViewBag.User = _user.User; }
+            if (_user.IsAuthenticated) { ViewBag.User = _user.User; ViewBag.Roles = _user.Roles; }
             ViewData["Title"] = "Certificate";
 
-            HeaderModel header = SQLData.GetHeaderById(id);
+            HeaderModel header = new HeaderModel();
+            CertificateViewModel model = new CertificateViewModel();
 
-            return View(new HeaderViewModel(header));
+            if (!String.IsNullOrEmpty(id))
+                header = SQLData.GetHeaderWithImageById(id);
+
+            if (header != null)            
+                model = new CertificateViewModel(header, _configuration);
+
+            return View(model);
         }
 
-        public ActionResult CertificateSimple(string id)
+        [AllowAnonymous]
+        public async Task<IActionResult> Upload(string id)
         {
-            if (_user.IsAuthenticated) { ViewBag.User = _user.User; }
+            if (_user.IsAuthenticated) { ViewBag.User = _user.User; ViewBag.Roles = _user.Roles; }
             ViewData["Title"] = "Certificate";
 
-            HeaderModel header = SQLData.GetHeaderById(id);
+            HeaderModel header = new HeaderModel();
 
-            return View(new HeaderViewModel(header));
+            if (!String.IsNullOrEmpty(id))
+                header = SQLData.GetHeaderById(id);
+
+            CertificateViewModel model = new CertificateViewModel(header, _configuration);
+
+            model.NotFound = TempData["NotFound"] != null;
+
+            return View(model);
+        }
+
+        [AllowAnonymous]
+        [HttpPost]
+        public async Task<IActionResult> CertificateUpdate(CertificateViewModel model)
+        {
+            if (_user.IsAuthenticated) { ViewBag.User = _user.User; ViewBag.Roles = _user.Roles; }
+
+            string id = null;
+
+            byte[] datahash;
+
+            try
+            {
+                datahash = null;
+
+                var file = model.Files.FirstOrDefault();
+
+                if (file != null && file.Length > 0)
+                {
+                    using (var stream = file.OpenReadStream())
+                    {
+                        using (System.Security.Cryptography.HashAlgorithm sha256 = System.Security.Cryptography.SHA256.Create())
+                        {
+                            datahash = sha256.ComputeHash(stream);
+                        }
+                    }
+
+                    var datahashString = Utils.Convert.ToHexString(datahash);
+
+                    HeaderModel header = SQLData.GetHeaderByData(datahashString);
+
+                    id = header?.HeaderId;                    
+                }
+            }
+
+            catch (Exception e)
+            {               
+            }
+
+            if (id != null)
+                return RedirectToAction("Certificate", new { id = id });
+            else
+            {
+                TempData["NotFound"] = true;
+                return RedirectToAction("Upload", new { id = id });
+            }
         }
 
         private async Task<byte[]> GetPDF(byte[] file, string id)
-        {
+        {            
             byte[] ret = null;
 
-            string inputFilename = "./cert.html";            
+            string baseUrl = _configuration["baseUrl"];
+
+            string inputFilename = @"wwwroot/pdf-template/cert.html";
+
+            string imgsrc = $"data:image/png;base64,{QR.GetPureBase64($"{baseUrl}/Contract/Certificate?id={id}")}";
 
             HtmlDto dto = new HtmlDto()
             {
                 html = System.Web.HttpUtility.HtmlEncode(
                             Encoding.UTF8.GetString(
                                 System.IO.File.ReadAllBytes(inputFilename)))
-                                .Replace("{certificateid}", id),
-                footerPath = "http://token-certificate.fileproof.org/footer.html"
+                                .Replace("{certificateid}", id)
+                                .Replace("{qrlink}", imgsrc),
+
+                footerPath = $"{baseUrl}/pdf-template/footer.html"
             };
 
             string jsonString = Newtonsoft.Json.JsonConvert.SerializeObject(dto);
 
-            string uri = @"http://cvproofapi.cloudapp.net:8080/api/Pdf/GeneratePDF";
-
-            //var values = new Dictionary<string, string>
-            //                {
-            //                   { "html", query2 }
-            //                };
-
-            //var content = new FormUrlEncodedContent(values);
+            string uri = _configuration["pdfApi"];
 
             var content = new StringContent(jsonString, Encoding.UTF8, "application/json");
 

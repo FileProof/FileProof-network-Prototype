@@ -13,7 +13,7 @@ namespace CVProof.Models
 
             return false;
         }
-
+        
         private string _nonce = String.Empty;
 
         public string ContainerVersion { get { return "0.1.0"; } }
@@ -36,7 +36,14 @@ namespace CVProof.Models
         public string DataHash { get; set; }
         public string Nonce { get; set; }
         public bool Stored { get; set; }
-        public string GlobalHash { get; set; }        
+        public string Attachment { get; set; }
+        public string GlobalHash { get; set; }       
+        
+
+        public UserProfileModel SelfProfile { get; set; }
+        public UserProfileModel ValidatorProfile { get; set; }
+        public UserProfileModel IssuerProfile { get; set; }
+        public UserProfileModel RecipientProfile { get; set; }
     }
 
     public class HashDto

@@ -28,6 +28,7 @@ using CVProof.DAL.SQL;
 using CVProof.Models;
 
 
+
 namespace CVProof.Web.Controllers
 {
     public class AuthController : BaseController
@@ -38,12 +39,20 @@ namespace CVProof.Web.Controllers
         [HttpPost]
         public JsonResult Login([FromBody]HashDto dto)
         {
-            string ret = null;
+            object ret = null;
+            HeaderModel header = null;
+            string[] roles = null;
 
             if (!String.IsNullOrEmpty(dto?.hash))
-                ret = SQLData.GetHeaderById(dto.hash) != null ? dto.hash : null;
+            {
+                header = SQLData.GetHeaderByNonce(dto.hash);                
 
-            if (!String.IsNullOrEmpty(ret))
+                roles = header.SelfProfile?.Roles.Split(',') ?? new string[]{"User"};
+
+                ret = new { id = header?.HeaderId, roles = roles };                
+            }
+
+            if (header != null)
             {
                 var cookieOptions = new CookieOptions()
                 {
@@ -56,15 +65,16 @@ namespace CVProof.Web.Controllers
                 };
 
                 Response.Cookies.Append("authtoken",
-                                        GenerateJwtToken(dto.hash),
+                                        GenerateJwtToken(header.HeaderId, roles),
                                         cookieOptions);
                 //else
                 //throw new ApplicationException("INVALID_LOGIN_ATTEMPT");
                 //TODO: implement errorhandling middleware, concerning 500s and nginx route errors as well
-                ViewBag.User = dto.hash;
+                ViewBag.User = header.HeaderId;
+                ViewBag.Roles = header.SelfProfile.Roles;
             }
 
-            return new JsonResult(new { msg = ret });
+            return new JsonResult(ret);
         }
 
         public void Logout()
@@ -82,10 +92,11 @@ namespace CVProof.Web.Controllers
                                     "",
                                     cookieOptions);
             ViewBag.User = null;
+            ViewBag.Roles = null;
         }
 
 
-        private string GenerateJwtToken(string hash)
+        private string GenerateJwtToken(string id, string[] roles = null)
         {
             var claims = new List<Claim>
             {
@@ -93,8 +104,16 @@ namespace CVProof.Web.Controllers
                 //        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),                
 
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(ClaimTypes.NameIdentifier, hash)
+                new Claim(ClaimTypes.NameIdentifier, id)            
             };
+
+            if (roles != null)
+            {
+                foreach (var role in roles)
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, role));
+                }
+            }
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtKey"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

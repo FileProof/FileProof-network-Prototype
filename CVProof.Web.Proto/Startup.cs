@@ -12,16 +12,13 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors.Infrastructure;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.FileProviders;
@@ -36,7 +33,7 @@ namespace CVProof.Web
     {
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
+            Configuration = configuration;               
         }
 
         public IConfiguration Configuration { get; }
@@ -93,28 +90,11 @@ namespace CVProof.Web
 
             app.UseAuthentication();
 
-            //app.UseCookieAuthentication(new CookieAuthenticationOptions
-            //{
-            //    AutomaticAuthenticate = true,
-            //    AutomaticChallenge = true,
-            //    AuthenticationScheme = "Cookie",
-            //    CookieName = "authtoken",
-            //    TicketDataFormat = new CustomJwtDataFormat(
-            //    SecurityAlgorithms.HmacSha256,
-            //    tokenValidationParameters)
-            //});
-
             app.UseMvc(
                 routes =>
-            {                
-                routes.MapRoute("actions","{controller}/{action}", new { controller = "Contract", action = "Validate" }
-);
-            }
-            //    routes.MapRoute(
-            //        name: "default",
-            //        template: "",
-            //        defaults: new { controller = "Contract", action = "Validate" });
-            //}
+                {                
+                    routes.MapRoute("actions","{controller}/{action}", new { controller = "Contract", action = "Verify" });
+                }
             );
 
             app.UseStaticFiles();

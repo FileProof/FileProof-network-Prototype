@@ -4,6 +4,7 @@ namespace CVProof.DAL.ETH
 {
 
     // event FileProofHashCreated(address indexed validator, bytes32 headerHash, uint creation_timestamp, uint headers_count);
+    [Event("FileProofHashCreated")]
     public class HashCreatedEvent
     {
         [Parameter("address", "validator", 1, true)]

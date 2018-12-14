@@ -1,4 +1,5 @@
 <input id="curUser" type="hidden" value="@ViewBag.User">
+<input id="curRoles" type="hidden" value="@ViewBag.Roles">
 
 <ul class="nav navbar-nav navbar-right">
     <li id="loginInput" class="hide">
@@ -7,7 +8,7 @@
         </div>
     </li>
     <li id="curUserName" class="hide">        
-        <a href="#" id="curUserNameLink">@if (!String.IsNullOrEmpty((string)ViewBag.User)) {@Html.Raw(((string)ViewBag.User).Substring(0, 7) + "..."); }</a>        
+        <a href="@Url.Action("Profile", "Profile")" id="curUserNameLink">@if (!String.IsNullOrEmpty((string)ViewBag.User)) {@Html.Raw(((string)ViewBag.User).Substring(0, 7) + "..."); }</a>        
     </li>
     <li id="signInBtn" class="hide">
         <a href="#" onclick="login()">Sign in</a>
